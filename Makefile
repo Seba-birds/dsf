@@ -6,7 +6,7 @@
 lib.name = dsf
 
 # input source file (class name == source file basename)
-class.sources = pan~.c
+class.sources = dsf~.c
 
 # all extra files to be included in binary distribution of the library
 datafiles =

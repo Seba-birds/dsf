@@ -2,3 +2,8 @@
 # vim temp files
 *.swp
 
+# precompiled c files
+*.o
+
+# compiled externals for MacOS
+*.pd_darwin
