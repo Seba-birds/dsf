@@ -34,7 +34,7 @@ typedef struct _dsf_tilde {
   t_sample f_dsf;
   t_sample f;
 
-  //dsf *dsf;
+  dsf *dsf;
 
   t_inlet *x_in2;
   t_inlet *x_in3;
@@ -139,7 +139,7 @@ void *dsf_tilde_new(t_floatarg f)
   x->f_dsf = f;
 
 
-  //x->dsf = dsf_new();
+  x->dsf = dsf_new();
   
   /* create a new signal-inlet */
   x->x_in2 = inlet_new(&x->x_obj, &x->x_obj.ob_pd, &s_signal, &s_signal);

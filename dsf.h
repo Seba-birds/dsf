@@ -17,7 +17,7 @@ typedef struct dsf
 
 //void dsf_run(dsf *x, OUTPRECISION *out, int vector_size);
 
-//dsf *dsf_new();
+dsf *dsf_new();
 
 //void dsf_free(dsf *x);
 
