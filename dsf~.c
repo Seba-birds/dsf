@@ -15,7 +15,7 @@
  * include the interface to Pd 
  */
 #include "m_pd.h"
-
+#include "dsf.h"
 
 /**
  * define a new "class" 
@@ -33,6 +33,8 @@ typedef struct _dsf_tilde {
   t_object  x_obj;
   t_sample f_dsf;
   t_sample f;
+
+  //dsf *dsf;
 
   t_inlet *x_in2;
   t_inlet *x_in3;
@@ -59,6 +61,10 @@ t_int *dsf_tilde_perform(t_int *w)
 {
   /* the first element is a pointer to the dataspace of this object */
   t_dsf_tilde *x = (t_dsf_tilde *)(w[1]);
+
+  /* TODO: */
+  /* in x->dsf is our actual data structure! */ 
+
   /* here is a pointer to the t_sample arrays that hold the 2 input signals */
   t_sample  *in1 =    (t_sample *)(w[2]);
   t_sample  *in2 =    (t_sample *)(w[3]);
@@ -68,16 +74,20 @@ t_int *dsf_tilde_perform(t_int *w)
   int          n =           (int)(w[5]);
   /* get (and clip) the mixing-factor */
   t_sample f_dsf = (x->f_dsf<0)?0.0:(x->f_dsf>1)?1.0:x->f_dsf;
-  /* just a counter */
-  int i;
 
-  /* this is the main routine: 
+
+  //dsf_run(x->dsf, out, n);
+  /* just a counter */
+  int i; 
+
+   /* this is the main routine: 
    * mix the 2 input signals into the output signal
    */
   for(i=0; i<n; i++)
     {
       out[i]=in1[i]*(1-f_dsf)+in2[i]*f_dsf;
     }
+
 
   /* return a pointer to the dataspace for the next dsp-object */
   return (w+6);
@@ -108,6 +118,7 @@ void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
  */
 void dsf_tilde_free(t_dsf_tilde *x)
 {
+  //dsf_free(x->dsf);
   /* free any ressources associated with the given inlet */
   inlet_free(x->x_in2);
   inlet_free(x->x_in3);
@@ -126,6 +137,9 @@ void *dsf_tilde_new(t_floatarg f)
 
   /* save the mixing factor in our dataspace */
   x->f_dsf = f;
+
+
+  //x->dsf = dsf_new();
   
   /* create a new signal-inlet */
   x->x_in2 = inlet_new(&x->x_obj, &x->x_obj.ob_pd, &s_signal, &s_signal);
