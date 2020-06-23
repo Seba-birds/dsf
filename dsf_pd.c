@@ -110,6 +110,8 @@ void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
    * 2 input signals and 1 output signal) and the length of the
    * signal vectors (all vectors are of the same length)
    */
+
+  x->dsf->sr = sys_getsr();
   dsp_add(dsf_tilde_perform, 5, x,
           sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
 }
@@ -120,7 +122,7 @@ void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
  */
 void dsf_tilde_free(t_dsf_tilde *x)
 {
-  //dsf_free(x->dsf);
+  dsf_free(x->dsf);
   /* free any ressources associated with the given inlet */
   inlet_free(x->x_in2);
   inlet_free(x->x_in3);
@@ -159,6 +161,10 @@ void dsf_tilde_set_increment(t_dsf_tilde *x, float increment) {
     x->dsf->increment = increment; 
 }
 
+void dsf_tilde_set_frequency(t_dsf_tilde *x, float frequency) {
+    dsf_set_frequency(x->dsf, frequency);
+}
+
 
 /**
  * define the function-space of the class
@@ -180,6 +186,9 @@ void dsf_tilde_setup(void) {
 
   class_addmethod(dsf_tilde_class,
           (t_method)dsf_tilde_set_increment, gensym("increment"), A_DEFFLOAT, 0);
+
+  class_addmethod(dsf_tilde_class,
+          (t_method)dsf_tilde_set_frequency, gensym("frequency"), A_DEFFLOAT, 0);
   /* if no signal is connected to the first inlet, we can as well 
    * connect a number box to it and use it as "signal"
    */

@@ -10,8 +10,12 @@
 
 typedef struct dsf
 {
-    OUTPRECISION phasor;
+    float frequency;
+    float sr;
+
+    OUTPRECISION phasor; 
     OUTPRECISION increment;
+
 } dsf;
 
 
@@ -20,5 +24,7 @@ void dsf_run(dsf *x, OUTPRECISION *out, int vector_size);
 dsf *dsf_new();
 
 void dsf_free(dsf *x);
+
+void dsf_set_frequency(dsf *x, float frequency);
 
 #endif

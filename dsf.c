@@ -14,11 +14,12 @@ dsf *dsf_new()
 void dsf_free(dsf *x)
 {
     free(x);
-}
+} 
 
-void dsf_set_increment(dsf *x, float inc)
+void dsf_set_frequency(dsf *x, float frequency)
 {
-    x->increment = inc; 
+    x->frequency = frequency;
+    x->increment = frequency / x->sr;
 }
 
 void dsf_run(dsf *x, OUTPRECISION *out, int vector_size)
