@@ -76,20 +76,22 @@ t_int *dsf_tilde_perform(t_int *w)
   t_sample f_dsf = (x->f_dsf<0)?0.0:(x->f_dsf>1)?1.0:x->f_dsf;
 
 
-  //dsf_run(x->dsf, out, n);
-  /* just a counter */
+  dsf_run(x->dsf, out, n);
+
+  /* just a counter 
   int i; 
 
-   /* this is the main routine: 
+   * this is the main routine: 
    * mix the 2 input signals into the output signal
-   */
+   *
   for(i=0; i<n; i++)
     {
       out[i]=in1[i]*(1-f_dsf)+in2[i]*f_dsf;
     }
 
 
-  /* return a pointer to the dataspace for the next dsp-object */
+  * return a pointer to the dataspace for the next dsp-object */
+
   return (w+6);
 }
 
@@ -153,6 +155,10 @@ void *dsf_tilde_new(t_floatarg f)
   return (void *)x;
 }
 
+void dsf_tilde_set_increment(t_dsf_tilde *x, float increment) {
+    x->dsf->increment = increment; 
+}
+
 
 /**
  * define the function-space of the class
@@ -171,6 +177,9 @@ void dsf_tilde_setup(void) {
    */
   class_addmethod(dsf_tilde_class,
         (t_method)dsf_tilde_dsp, gensym("dsp"), 0);
+
+  class_addmethod(dsf_tilde_class,
+          (t_method)dsf_tilde_set_increment, gensym("increment"), A_DEFFLOAT, 0);
   /* if no signal is connected to the first inlet, we can as well 
    * connect a number box to it and use it as "signal"
    */
