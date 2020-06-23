@@ -15,10 +15,10 @@ typedef struct dsf
 } dsf;
 
 
-//void dsf_run(dsf *x, OUTPRECISION *out, int vector_size);
+void dsf_run(dsf *x, OUTPRECISION *out, int vector_size);
 
 dsf *dsf_new();
 
-//void dsf_free(dsf *x);
+void dsf_free(dsf *x);
 
 #endif
