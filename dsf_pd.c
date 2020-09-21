@@ -112,6 +112,7 @@ void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
    */
 
   x->dsf->sr = sys_getsr();
+  x->dsf->sr_inv = ((INPRECISION) 1.0) / sys_getsr();
   dsp_add(dsf_tilde_perform, 5, x,
           sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
 }
@@ -157,8 +158,8 @@ void *dsf_tilde_new(t_floatarg f)
   return (void *)x;
 }
 
-void dsf_tilde_set_increment(t_dsf_tilde *x, float increment) {
-    x->dsf->increment = increment; 
+void dsf_tilde_set_argument(t_dsf_tilde *x, float argument) {
+    set_phasor_to_argument(x->dsf->increment, (INPRECISION) argument);
 }
 
 void dsf_tilde_set_frequency(t_dsf_tilde *x, float frequency) {
@@ -185,7 +186,7 @@ void dsf_tilde_setup(void) {
         (t_method)dsf_tilde_dsp, gensym("dsp"), 0);
 
   class_addmethod(dsf_tilde_class,
-          (t_method)dsf_tilde_set_increment, gensym("increment"), A_DEFFLOAT, 0);
+          (t_method)dsf_tilde_set_argument, gensym("argument"), A_DEFFLOAT, 0);
 
   class_addmethod(dsf_tilde_class,
           (t_method)dsf_tilde_set_frequency, gensym("frequency"), A_DEFFLOAT, 0);

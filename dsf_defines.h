@@ -9,6 +9,10 @@
 #ifndef DSF_DEFINES_H
 #define DSF_DEFINES_H
 
+
+#define PI 3.1415926535898
+
+
 /** Data Type Macro for flexible input vector single or double floating point precision */
 #define DSF_INPUTVECTOR_USE_FLOAT
 #define DSF_OUTPUTVECTOR_USE_FLOAT
