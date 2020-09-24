@@ -38,7 +38,8 @@ typedef struct _dsf_tilde {
 
   t_inlet *x_in2;
   t_inlet *x_in3;
-  t_outlet*x_out;
+  t_outlet *x_out1;
+  t_outlet *x_out2;
 } t_dsf_tilde;
 
 
@@ -69,14 +70,15 @@ t_int *dsf_tilde_perform(t_int *w)
   t_sample  *in1 =    (t_sample *)(w[2]);
   t_sample  *in2 =    (t_sample *)(w[3]);
   /* here comes the signalblock that will hold the output signal */
-  t_sample  *out =    (t_sample *)(w[4]);
+  t_sample  *out1 =    (t_sample *)(w[4]);
+  t_sample  *out2 =    (t_sample *)(w[5]);
   /* all signalblocks are of the same length */
-  int          n =           (int)(w[5]);
+  int          n =           (int)(w[6]);
   /* get (and clip) the mixing-factor */
   t_sample f_dsf = (x->f_dsf<0)?0.0:(x->f_dsf>1)?1.0:x->f_dsf;
 
 
-  dsf_run(x->dsf, out, n);
+  dsf_run(x->dsf, out1, out2, n);
 
   /* just a counter 
   int i; 
@@ -92,7 +94,7 @@ t_int *dsf_tilde_perform(t_int *w)
 
   * return a pointer to the dataspace for the next dsp-object */
 
-  return (w+6);
+  return (w+7);
 }
 
 
@@ -113,8 +115,8 @@ void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
 
   x->dsf->sr = sys_getsr();
   x->dsf->sr_inv = ((INPRECISION) 1.0) / sys_getsr();
-  dsp_add(dsf_tilde_perform, 5, x,
-          sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
+  dsp_add(dsf_tilde_perform, 6, x,
+          sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[3]->s_vec, sp[0]->s_n);
 }
 
 /**
@@ -129,7 +131,8 @@ void dsf_tilde_free(t_dsf_tilde *x)
   inlet_free(x->x_in3);
 
   /* free any ressources associated with the given outlet */
-  outlet_free(x->x_out);
+  outlet_free(x->x_out1);
+  outlet_free(x->x_out2);
 }
 
 /**
@@ -153,19 +156,23 @@ void *dsf_tilde_new(t_floatarg f)
   x->x_in3 = floatinlet_new (&x->x_obj, &x->f_dsf);
 
   /* create a new signal-outlet */
-  x->x_out = outlet_new(&x->x_obj, &s_signal);
+  x->x_out1 = outlet_new(&x->x_obj, &s_signal);
+  x->x_out2 = outlet_new(&x->x_obj, &s_signal);
 
   return (void *)x;
 }
 
 void dsf_tilde_set_argument(t_dsf_tilde *x, float argument) {
-    set_phasor_to_argument(x->dsf->increment, (INPRECISION) argument);
+    set_phasor_to_argument(x->dsf->increment_a, (INPRECISION) argument);
 }
 
 void dsf_tilde_set_frequency(t_dsf_tilde *x, float frequency) {
     dsf_set_frequency(x->dsf, frequency);
 }
 
+void dsf_tilde_set_distance(t_dsf_tilde *x, float distance) {
+    dsf_set_distance(x->dsf, distance);
+}
 
 /**
  * define the function-space of the class
@@ -190,6 +197,9 @@ void dsf_tilde_setup(void) {
 
   class_addmethod(dsf_tilde_class,
           (t_method)dsf_tilde_set_frequency, gensym("frequency"), A_DEFFLOAT, 0);
+
+  class_addmethod(dsf_tilde_class,
+          (t_method)dsf_tilde_set_distance, gensym("distance"), A_DEFFLOAT, 0);
   /* if no signal is connected to the first inlet, we can as well 
    * connect a number box to it and use it as "signal"
    */
