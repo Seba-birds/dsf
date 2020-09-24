@@ -22,6 +22,10 @@ typedef struct dsf
     INPRECISION sr_inv;
     INPRECISION frequency;
     INPRECISION distance;
+
+    INPRECISION weight;
+    int num_of_sines;
+    int norm_counter;
     float sr;
 
     complex_nr *phasor_a;
@@ -50,6 +54,8 @@ void normalize_phasor(complex_nr *phasor);
 
 void multiply_complex(complex_nr *a, complex_nr *b, complex_nr *result);
 
+void power_complex(complex_nr *x, int power, complex_nr *result);
+
 void divide_phasors(complex_nr *numerator, complex_nr *denominator, complex_nr *result);
 
 void divide_complex_by_length(complex_nr *numerator, 
@@ -57,10 +63,14 @@ void divide_complex_by_length(complex_nr *numerator,
 
 void divide_complex(complex_nr *numerator, complex_nr *denominator, complex_nr *result);
 
-void geometric_series(complex_nr *a, complex_nr *b, complex_nr *result);
+void geometric_series(dsf *x, complex_nr *result);
 
 void dsf_set_frequency(dsf *x, float frequency);
 
 void dsf_set_distance(dsf *x, float distance);
+
+void dsf_set_weight(dsf *x, float weight);
+
+void dsf_set_num_of_sines(dsf *x, int num_of_sines);
 
 #endif

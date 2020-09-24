@@ -174,6 +174,15 @@ void dsf_tilde_set_distance(t_dsf_tilde *x, float distance) {
     dsf_set_distance(x->dsf, distance);
 }
 
+void dsf_tilde_set_weight(t_dsf_tilde *x, float weight) {
+    dsf_set_weight(x->dsf, weight); 
+}
+
+void dsf_tilde_set_num_of_sines(t_dsf_tilde *x, float num_of_sines) {
+    dsf_set_num_of_sines(x->dsf, (int)num_of_sines); 
+}
+
+
 /**
  * define the function-space of the class
  * within a single-object external the name of this function is very special
@@ -200,6 +209,12 @@ void dsf_tilde_setup(void) {
 
   class_addmethod(dsf_tilde_class,
           (t_method)dsf_tilde_set_distance, gensym("distance"), A_DEFFLOAT, 0);
+
+  class_addmethod(dsf_tilde_class,
+          (t_method)dsf_tilde_set_weight, gensym("weight"), A_DEFFLOAT, 0);
+
+  class_addmethod(dsf_tilde_class,
+          (t_method)dsf_tilde_set_num_of_sines, gensym("partials"), A_DEFFLOAT, 0);
   /* if no signal is connected to the first inlet, we can as well 
    * connect a number box to it and use it as "signal"
    */

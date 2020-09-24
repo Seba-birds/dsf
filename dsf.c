@@ -22,6 +22,11 @@ dsf *dsf_new()
     x->phasor_b = new_complex_nr();
     x->increment_b = new_complex_nr();
 
+
+    x->weight = 0.5;
+    x->num_of_sines = 2;
+    x->norm_counter = 0;
+
     return x; 
 }
 
@@ -110,16 +115,9 @@ void divide_complex(complex_nr *numerator, complex_nr *denominator, complex_nr *
 
 void normalize_phasor(complex_nr *phasor)
 {
-    int too_big = phasor->im > 1.0;
-    int too_small = phasor->im < -1.0;
-    double in_range = !(too_big || too_small) * (double)phasor->im;
-    
-    double x = too_big - too_small + in_range; 
-
-
-    double argument = asin(x);
-    phasor->re = (INPRECISION) cos(argument); 
-    phasor->im = (INPRECISION) x;
+    double norm_factor = 1.0 / sqrt(phasor->im * phasor->im + phasor->re * phasor->re);
+    phasor->im *= norm_factor;
+    phasor->re *= norm_factor;
 }
 
 
@@ -136,17 +134,46 @@ void dsf_set_distance(dsf *x, float distance)
 }
 
 
+void dsf_set_weight(dsf *x, float weight)
+{
+    x->weight = weight; 
+}
+
+
+void dsf_set_num_of_sines(dsf *x, int num_of_sines)
+{
+    if(num_of_sines > 0)
+    {
+        x->num_of_sines = num_of_sines;
+    } 
+}
+
+
+
+
 int phasor_close_to_one(complex_nr* x)
 {
     return x->re > 0.995; 
 }
 
 
-void geometric_series(complex_nr *a, complex_nr *b, complex_nr *result)
+void power_complex(complex_nr *x, int power, complex_nr *result)
+{
+    result->im = x->im;
+    result->re = x->re;
+    for(int i = 1; i < power; i++)
+    {
+        multiply_complex(x, result, result);
+    } 
+}
+
+
+//void geometric_series(complex_nr *a, complex_nr *b, complex_nr *result)
+void geometric_series(dsf *x, complex_nr *result)
 {
     complex_nr factor;
 
-    if(b->re > 0.9995)
+    if(x->phasor_b->re > 0.9995)
     {
         // following rule of l'hopital for "0/0":
         factor.im = 0;
@@ -155,21 +182,25 @@ void geometric_series(complex_nr *a, complex_nr *b, complex_nr *result)
     else
     {
         complex_nr power;
-        multiply_complex(b, b, &power); 
+        //multiply_complex(x->phasor_b, x->phasor_b, &power); 
+        power_complex(x->phasor_b, x->num_of_sines, &power);
 
         // assuming w = 0.5, w^2 = 0.25 
+        double scale = pow(x->weight, x->num_of_sines);
+        //double scale = pow(0.5, 2);
         complex_nr numerator;
-        numerator.im = -power.im * 0.25;
-        numerator.re = 1 - power.re * 0.25;
+        numerator.im = -power.im * scale;
+        numerator.re = 1 - power.re * scale;
 
         complex_nr denominator;
-        denominator.im = -b->im;
-        denominator.re = 1 - b->re; 
+        denominator.im = -x->phasor_b->im;
+        denominator.re = 1 - x->phasor_b->re; 
 
-        divide_complex_by_length(&numerator, &denominator, 0.25, &factor); 
+        divide_complex_by_length(&numerator, &denominator, 1.0 - 0.5, &factor); 
+        //divide_complex_by_length(&numerator, &denominator, 1.0 - x->weight, &factor); 
     }
 
-    multiply_complex(a, &factor, result); 
+    multiply_complex(x->phasor_a, &factor, result); 
 }
 
 
@@ -178,11 +209,11 @@ INPRECISION norm_factor(INPRECISION len, int num_of_sines)
     INPRECISION norm_factor = 0;
     if(len > 0.9995 && len < 1.0005)
     {
-        norm_factor = 1;
+        norm_factor = 1.0;
     }
     else
     { 
-        norm_factor = (1 - pow(len, num_of_sines)) / (1 - len);
+        norm_factor = (1.0 - len) / (1.0 - pow(len, num_of_sines));
     }
 
     return norm_factor; 
@@ -197,12 +228,24 @@ void dsf_run(dsf *x, OUTPRECISION *out1, OUTPRECISION *out2, int vector_size)
         multiply_complex(x->phasor_b, x->increment_b, x->phasor_b);
 
         complex_nr result; 
-        geometric_series(x->phasor_a, x->phasor_b, &result); 
+        geometric_series(x, &result); 
 
-        // 0.6 to compensate for 1.5 as max signal strength
-        out1[i] = result.re * norm_factor(0.5, 2);
+
+        //out1[i] = result.re * norm_factor(0.5, 2);
+        out1[i] = x->phasor_a->re;
         out2[i] = x->phasor_b->re;
     }
+
+    /* 
+    x->norm_counter++;
+
+    if(x->norm_counter > 2000){
+        x->norm_counter = 0;
+
+        normalize_phasor(x->phasor_a);
+        normalize_phasor(x->phasor_b);
+    }
+    */
 
 }
 
