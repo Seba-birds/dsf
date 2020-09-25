@@ -9,6 +9,8 @@ complex_nr *new_complex_nr()
     new_nr->im = 0.03141;
     new_nr->re = 0.999506;
 
+    adjust_phasor(new_nr);
+
     return new_nr;
 }
 
@@ -44,12 +46,12 @@ void dsf_free(dsf *x)
 
 void set_increment_to_freq(complex_nr* increment, INPRECISION freq, INPRECISION sr_inv)
 {
-    INPRECISION argument = (freq * sr_inv) * PI; 
+    double argument = (freq * sr_inv) * PI; 
     set_phasor_to_argument(increment, argument);
 }
 
 
-void set_phasor_to_argument(complex_nr *phasor, INPRECISION argument)
+void set_phasor_to_argument(complex_nr *phasor, double argument)
 {
     phasor->im = sin(argument);
     phasor->re = cos(argument);
@@ -113,11 +115,12 @@ void divide_complex(complex_nr *numerator, complex_nr *denominator, complex_nr *
 }
 
 
-void normalize_phasor(complex_nr *phasor)
+void adjust_phasor(complex_nr *phasor)
 {
-    double norm_factor = 1.0 / sqrt(phasor->im * phasor->im + phasor->re * phasor->re);
-    phasor->im *= norm_factor;
-    phasor->re *= norm_factor;
+    double length = sqrt(phasor->im * phasor->im + phasor->re * phasor->re);
+    double adjustment = 1.0 / length;
+    phasor->im *= adjustment;
+    phasor->re *= adjustment;
 }
 
 
@@ -125,12 +128,18 @@ void dsf_set_frequency(dsf *x, float frequency)
 {
     x->frequency = frequency;
     set_increment_to_freq(x->increment_a, x->frequency, x->sr_inv);
+
+    adjust_phasor(x->phasor_a);
+    adjust_phasor(x->increment_a);
 }
 
 void dsf_set_distance(dsf *x, float distance)
 { 
     x->distance = distance;
     set_increment_to_freq(x->increment_b, x->distance, x->sr_inv);
+
+    adjust_phasor(x->phasor_b);
+    adjust_phasor(x->increment_b);
 }
 
 
@@ -173,7 +182,7 @@ void geometric_series(dsf *x, complex_nr *result)
 {
     complex_nr factor;
 
-    if(x->phasor_b->re > 0.9995)
+    if(x->phasor_b->re == 1)
     {
         // following rule of l'hopital for "0/0":
         factor.im = 0;
@@ -196,8 +205,7 @@ void geometric_series(dsf *x, complex_nr *result)
         denominator.im = -x->phasor_b->im;
         denominator.re = 1 - x->phasor_b->re; 
 
-        divide_complex_by_length(&numerator, &denominator, 1.0 - 0.5, &factor); 
-        //divide_complex_by_length(&numerator, &denominator, 1.0 - x->weight, &factor); 
+        divide_complex_by_length(&numerator, &denominator, 1.0 - x->weight, &factor); 
     }
 
     multiply_complex(x->phasor_a, &factor, result); 
@@ -207,7 +215,7 @@ void geometric_series(dsf *x, complex_nr *result)
 INPRECISION norm_factor(INPRECISION len, int num_of_sines)
 {
     INPRECISION norm_factor = 0;
-    if(len > 0.9995 && len < 1.0005)
+    if(len == 1.0)
     {
         norm_factor = 1.0;
     }
@@ -228,24 +236,13 @@ void dsf_run(dsf *x, OUTPRECISION *out1, OUTPRECISION *out2, int vector_size)
         multiply_complex(x->phasor_b, x->increment_b, x->phasor_b);
 
         complex_nr result; 
+        if(x->num_of_sines > 1)
         geometric_series(x, &result); 
 
 
-        //out1[i] = result.re * norm_factor(0.5, 2);
-        out1[i] = x->phasor_a->re;
+        out1[i] = result.re * norm_factor(x->weight, x->num_of_sines);
         out2[i] = x->phasor_b->re;
     }
-
-    /* 
-    x->norm_counter++;
-
-    if(x->norm_counter > 2000){
-        x->norm_counter = 0;
-
-        normalize_phasor(x->phasor_a);
-        normalize_phasor(x->phasor_b);
-    }
-    */
-
+    
 }
 

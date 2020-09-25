@@ -11,8 +11,8 @@
 
 typedef struct complex_nr
 {
-    INPRECISION im;
-    INPRECISION re; 
+    double im;
+    double re; 
 
 } complex_nr;
 
@@ -48,9 +48,11 @@ void dsf_free(dsf *x);
 
 void set_increment_to_freq(complex_nr* increment, INPRECISION freq, INPRECISION sr_inv);
 
-void set_phasor_to_argument(complex_nr *phasor, INPRECISION argument);
+void set_phasor_to_argument(complex_nr *phasor, double argument);
 
 void normalize_phasor(complex_nr *phasor);
+
+void adjust_phasor(complex_nr *phasor);
 
 void multiply_complex(complex_nr *a, complex_nr *b, complex_nr *result);
 
