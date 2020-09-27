@@ -190,7 +190,7 @@ void dsf_set_num_of_sines(dsf *x, int num_of_sines)
 
         char msg[90];
         sprintf(msg, "sr: %f, usr: %d, actual: %d\n", x->sr, x->usr_num_of_sines, x->num_of_sines);
-        post(msg);
+        //post(msg);
     } 
 }
 
@@ -254,34 +254,93 @@ void calculate_series(dsf *x, complex_nr *result, double *norm_factor)
 }
 
 
+
+/*
+ *
+
+ SUM(0..k) a * (wb)^k = a * (1 - (wb)^k) / (1 - wb)
+
+ (wb)^k = w^k * b^k
+
+ *
+ * 
+ */
+
+
+void one_minus_complex(complex_nr *x, complex_nr *result)
+{
+    result->im = 0.0 - x->im;
+    result->re = 1.0 - x->re; 
+}
+
+
+void scale_complex(complex_nr *x, double scalar, complex_nr *result)
+{ 
+    result->im = scalar * x->im;
+    result->re = scalar * x->re; 
+}
+
+
+void geometric_series_denominator(dsf *x, complex_nr *result)
+{
+    // calculating (1 - w * b)
+    // where w is x->weight
+    // and b is current position of distance phasor x->phasor_b
+
+    double w = x->weight;
+
+    complex_nr wb;
+    scale_complex(x->phasor_b, w, &wb); 
+
+    one_minus_complex(&wb, result); 
+}
+
+
+void geometric_series_numerator(dsf *x, complex_nr *result)
+{ 
+    // calculating (1 - (w * b)^n) = (1 - (w^n * b^n))
+    // where w is x->weight,
+    // b is current position of distance phasor x->phasor_b,
+    // and n is number of sines (or number of sines + 1?)
+    int n = x->num_of_sines + 1;
+    double wn = pow(x->weight, n);
+
+    complex_nr bn;
+    power_complex(x->phasor_b, n, &bn);
+
+    complex_nr wnbn;
+    scale_complex(&bn, wn, &wnbn);
+
+    one_minus_complex(&wnbn, result); 
+}
+
+
+void geometric_series_factor(dsf *x, complex_nr *result)
+{
+    // calculating (1 - (wb)^k) / (1 - wb)
+    complex_nr numerator;
+    geometric_series_numerator(x, &numerator);
+
+    complex_nr denominator;
+    geometric_series_denominator(x, &denominator); 
+
+    divide_complex(&numerator, &denominator, result);
+}
+
+
 void geometric_series(dsf *x, complex_nr *result)
 {
     complex_nr factor;
-    factor.im = 0;
-    factor.re = 1;
 
-    if(x->phasor_b->re == 1)
+    if(x->phasor_b->re == 1 && x->weight == 1)
     {
         // following rule of l'hopital for "0/0":
-        // factor.im = 0
-        // factor.re = 1
+        factor.im = 0;
+        factor.re = 1;
     }
     else
     {
-        complex_nr power;
-
-        power_complex(x->phasor_b, x->num_of_sines, &power);
-
-        double scale = pow(x->weight, x->num_of_sines);
-        complex_nr numerator;
-        numerator.im = -power.im * scale;
-        numerator.re = 1 - power.re * scale;
-
-        complex_nr denominator;
-        denominator.im = -x->phasor_b->im;
-        denominator.re = 1 - x->phasor_b->re; 
-
-        divide_complex_by_length(&numerator, &denominator, 1.0 - x->weight, &factor); 
+        geometric_series_factor(x, &factor); 
     }
 
     multiply_complex(x->phasor_a, &factor, result); 
@@ -314,14 +373,14 @@ void dsf_run(dsf *x, OUTPRECISION *out1, OUTPRECISION *out2, int vector_size)
         complex_nr result;
 
 
-        /*
         geometric_series(x, &result); 
         out1[i] = result.re; 
-        */
         
+        /*
         double norm_factor;
         calculate_series(x, &result, &norm_factor);
         out1[i] = result.re / norm_factor;
+        */
 
 
         out2[i] = x->phasor_b->re;

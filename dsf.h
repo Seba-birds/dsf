@@ -68,7 +68,17 @@ void divide_complex_by_length(complex_nr *numerator,
 
 void divide_complex(complex_nr *numerator, complex_nr *denominator, complex_nr *result);
 
+void one_minus_complex(complex_nr *x, complex_nr *result);
+
+void scale_complex(complex_nr *x, double scalar, complex_nr *result);
+
 void calculate_series(dsf *x, complex_nr *result, double *norm_factor);
+
+void geometric_series_denominator(dsf *x, complex_nr *result);
+
+void geometric_series_numerator(dsf *x, complex_nr *result);
+
+void geometric_series_factor(dsf *x, complex_nr *result);
 
 void geometric_series(dsf *x, complex_nr *result);
 
