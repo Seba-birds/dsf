@@ -61,6 +61,8 @@ void multiply_complex(complex_nr *a, complex_nr *b, complex_nr *result);
 
 void power_complex(complex_nr *x, int power, complex_nr *result);
 
+void power_complex_naiv(complex_nr *x, int power, complex_nr *result);
+
 void divide_phasors(complex_nr *numerator, complex_nr *denominator, complex_nr *result);
 
 void divide_complex_by_length(complex_nr *numerator, 

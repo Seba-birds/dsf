@@ -205,6 +205,31 @@ int phasor_close_to_one(complex_nr* x)
 
 void power_complex(complex_nr *x, int power, complex_nr *result)
 {
+    // stop recursion:
+    if(power <= 1)
+    {
+        result->im = x->im;
+        result->re = x->re; 
+    }
+    else
+    {
+        complex_nr intermediate;
+        power_complex(x, power/2, &intermediate);
+
+        multiply_complex(&intermediate, &intermediate, result);
+
+        if(power % 2)
+        {
+            // uneven exponent: multiply result one more time with x
+            multiply_complex(x, result, result); 
+        } 
+    } 
+}
+
+
+
+void power_complex_naiv(complex_nr *x, int power, complex_nr *result)
+{
     result->im = x->im;
     result->re = x->re;
     for(int i = 1; i < power; i++)
@@ -302,7 +327,7 @@ void geometric_series_numerator(dsf *x, complex_nr *result)
     // where w is x->weight,
     // b is current position of distance phasor x->phasor_b,
     // and n is number of sines (or number of sines + 1?)
-    int n = x->num_of_sines + 1;
+    int n = x->num_of_sines;
     double wn = pow(x->weight, n);
 
     complex_nr bn;
@@ -352,7 +377,8 @@ INPRECISION norm_factor(INPRECISION len, int num_of_sines)
     INPRECISION norm_factor = 0;
     if(len == 1.0)
     {
-        norm_factor = 1.0;
+        // l'hopital "0/0":
+        norm_factor = 1.0 / num_of_sines;
     }
     else
     { 
@@ -370,19 +396,10 @@ void dsf_run(dsf *x, OUTPRECISION *out1, OUTPRECISION *out2, int vector_size)
         multiply_complex(x->phasor_a, x->increment_a, x->phasor_a);
         multiply_complex(x->phasor_b, x->increment_b, x->phasor_b);
 
-        complex_nr result;
-
-
+        complex_nr result; 
         geometric_series(x, &result); 
-        out1[i] = result.re; 
-        
-        /*
-        double norm_factor;
-        calculate_series(x, &result, &norm_factor);
-        out1[i] = result.re / norm_factor;
-        */
 
-
+        out1[i] = result.re * norm_factor(x->weight, x->num_of_sines); 
         out2[i] = x->phasor_b->re;
     }
     
