@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "dsf_defines.h"
+#include "m_pd.h"
 
 
 typedef struct complex_nr
@@ -24,6 +25,7 @@ typedef struct dsf
     INPRECISION distance;
 
     INPRECISION weight;
+    int usr_num_of_sines;
     int num_of_sines;
     int norm_counter;
     float sr;
@@ -37,6 +39,7 @@ typedef struct dsf
 } dsf;
 
 
+int min(int a, int b);
 
 void dsf_run(dsf *x, OUTPRECISION *out1, OUTPRECISION *out2, int vector_size);
 
@@ -68,6 +71,8 @@ void divide_complex(complex_nr *numerator, complex_nr *denominator, complex_nr *
 void calculate_series(dsf *x, complex_nr *result, double *norm_factor);
 
 void geometric_series(dsf *x, complex_nr *result);
+
+INPRECISION norm_factor(INPRECISION len, int num_of_sines);
 
 void dsf_set_frequency(dsf *x, float frequency);
 
