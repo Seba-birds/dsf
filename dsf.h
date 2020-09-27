@@ -65,6 +65,8 @@ void divide_complex_by_length(complex_nr *numerator,
 
 void divide_complex(complex_nr *numerator, complex_nr *denominator, complex_nr *result);
 
+void calculate_series(dsf *x, complex_nr *result, double *norm_factor);
+
 void geometric_series(dsf *x, complex_nr *result);
 
 void dsf_set_frequency(dsf *x, float frequency);

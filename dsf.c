@@ -177,6 +177,46 @@ void power_complex(complex_nr *x, int power, complex_nr *result)
 }
 
 
+
+void calculate_series(dsf *x, complex_nr *result, double *norm_factor)
+{
+    INPRECISION powered_weight;
+
+    complex_nr running_sum;
+    complex_nr powered_b;
+
+    // w^0 * b^0
+    powered_b.im = 0.0;
+    powered_b.re = 1.0; 
+
+    running_sum.im = 0.0;
+    running_sum.re = 1.0;
+
+    powered_weight = 1.0;
+    *norm_factor = 1.0;
+
+    // increasing powers
+    for(int i = 1; i < x->num_of_sines; i++)
+    {
+        // b^i
+        multiply_complex(x->phasor_b, &powered_b, &powered_b); 
+        // w^i
+        powered_weight *= x->weight;
+
+        // track norm factor
+        *norm_factor += powered_weight;
+
+        // add w^i * b^i to sum
+        running_sum.im += powered_weight * powered_b.im;
+        running_sum.re += powered_weight * powered_b.re; 
+    } 
+
+    multiply_complex(&running_sum, x->phasor_a, result); 
+    // track length for phasor a:
+    *norm_factor += 1.0; 
+}
+
+
 //void geometric_series(complex_nr *a, complex_nr *b, complex_nr *result)
 void geometric_series(dsf *x, complex_nr *result)
 {
@@ -235,12 +275,19 @@ void dsf_run(dsf *x, OUTPRECISION *out1, OUTPRECISION *out2, int vector_size)
         multiply_complex(x->phasor_a, x->increment_a, x->phasor_a);
         multiply_complex(x->phasor_b, x->increment_b, x->phasor_b);
 
+
+        /*
         complex_nr result; 
         if(x->num_of_sines > 1)
         geometric_series(x, &result); 
+        */
+        
+        complex_nr result;
+        double norm_factor;
+        calculate_series(x, &result, &norm_factor);
 
 
-        out1[i] = result.re * norm_factor(x->weight, x->num_of_sines);
+        out1[i] = result.re * norm_factor;
         out2[i] = x->phasor_b->re;
     }
     
