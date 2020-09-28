@@ -7,3 +7,9 @@
 
 # compiled externals for MacOS
 *.pd_darwin
+
+# created by Doxygen:
+documentation/*
+
+# apple system files:
+.DS_Store

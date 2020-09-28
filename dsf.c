@@ -1,7 +1,23 @@
+/**
+  \file dsf.c
+  \author Sebastian Zimmermann
+  \date September 2020
+  \brief dsf.c contains the main functionality of the dsf synthesis.
+
+  \see James A. Moorer, "The Synthesis of Complex Audio Spectra by Means of Discrete Summation Formulas", 1976
+  \see https://ccrma.stanford.edu/files/papers/stanm5.pdf
+  \see Tim Stilson,  Julius Smith, "Alias-Free Digital Synthesis of Classic Analog Waveforms", 1996
+  \see https://ccrma.stanford.edu/~stilti/papers/blit.pdf
+  */
 
 #include "dsf.h"
 
-
+/**
+  \brief get the smaller value of two integers
+  \param a first value
+  \param b second value
+  \return smaller of a and b
+  */
 int min(int a, int b)
 {
     int x = a < b ? a : b;
@@ -9,7 +25,16 @@ int min(int a, int b)
 }
 
 
+/**
+  \brief initialize a complex_nr 
 
+  Allocates necessary memory and sets the 
+  complex number to a degree so that it could
+  be used as an increment to generate an oscillation
+  at 440 Hz. This enables fast sanity checking.
+
+  \return Pointer to initialized complex_nr
+  */
 complex_nr *new_complex_nr()
 {
     complex_nr *new_nr = (complex_nr *)malloc(sizeof(complex_nr));
@@ -22,6 +47,15 @@ complex_nr *new_complex_nr()
 }
 
 
+/**
+  \brief initialize dsf memory
+
+  The dsf struct holds all variables necessary for
+  calculating the dsf.
+
+  \return Pointer to allocated and initialized memory.
+  \see dsf
+  */ 
 dsf *dsf_new()
 {
     dsf *x = (dsf *)malloc(sizeof(dsf));
@@ -45,7 +79,9 @@ dsf *dsf_new()
     return x; 
 }
 
-
+/**
+  \brief free dsf struct memory
+  */
 void dsf_free(dsf *x)
 {
     free(x->increment_a);
@@ -57,6 +93,22 @@ void dsf_free(dsf *x)
 } 
 
 
+/**
+  \brief set angle of increment to frequency
+
+  Rotating phasors are being rotated by multiplications with
+  a complex number called increment. set_increment_to_freq()
+  sets the angle of
+  an increment with respect to the sample frequency
+  so that those multiplications produce
+  the correct oscillation frequency of the rotating phasor.
+
+  \param increment The complex number that is to be adjusted
+  for the given frequency
+  \param freq The frequency to which the increment is to be set
+  \param sr_inv The inverted sample frequency 
+
+  */
 void set_increment_to_freq(complex_nr* increment, INPRECISION freq, INPRECISION sr_inv)
 {
     // multiply by 2.0 to get fraction of Nyquist frequency
@@ -64,14 +116,26 @@ void set_increment_to_freq(complex_nr* increment, INPRECISION freq, INPRECISION 
     set_phasor_to_argument(increment, argument);
 }
 
+/**
+  \brief set angle of a phasor
 
+  \param phasor The phasor whose angle is to be set
+  \param argument The angle to which to set the phasor to.
+  The range \f$[0 \dots 2\pi]\f$ describes a full rotation.
+  */
 void set_phasor_to_argument(complex_nr *phasor, double argument)
 {
     phasor->im = sin(argument);
     phasor->re = cos(argument);
 } 
 
+/**
+  \brief multiplying two complex numbers
 
+  \param a Factor a
+  \param b Factor b
+  \param result Memory to which the result is being written
+  */
 void multiply_complex(complex_nr *a, complex_nr *b, complex_nr *result)
 {
     INPRECISION re = (a->re * b->re) - (a->im * b->im);
@@ -80,38 +144,13 @@ void multiply_complex(complex_nr *a, complex_nr *b, complex_nr *result)
     result->im = im; 
 }
 
+/**
+  \brief divide complex numbers
 
-void divide_phasors(complex_nr *numerator, complex_nr *denominator, complex_nr *result)
-{ 
-    // because length of phasors is 1,
-    // denominator becomes 1 after expansion with its conjugate
-    complex_nr conjugate;
-    conjugate.im = -denominator->im;
-    conjugate.re = denominator->re; 
-    multiply_complex(numerator, &conjugate, result); 
-}
-
-
-void divide_complex_by_length(complex_nr *numerator, 
-        complex_nr *denominator, float len, complex_nr *result)
-{ 
-    // if we know the length of denominator
-    // we can just use that to divide instead
-    // of another complex multiplication
-    complex_nr conjugate;
-    conjugate.im = -denominator->im;
-    conjugate.re = denominator->re;
-
-    complex_nr expanded_num;
-    multiply_complex(numerator, &conjugate, &expanded_num);
-
-    float denom = len * len;
-
-    result->im = expanded_num.im / denom;
-    result->re = expanded_num.re / denom;
-}
-
-
+  \param numerator Numerator of division
+  \param denominator Denominator of division
+  \param result Pointer to memory where result of division is written to
+  */
 void divide_complex(complex_nr *numerator, complex_nr *denominator, complex_nr *result)
 { 
     complex_nr conjugate;
@@ -129,6 +168,16 @@ void divide_complex(complex_nr *numerator, complex_nr *denominator, complex_nr *
 }
 
 
+/**
+  \brief adjust phasor degeneration caused by digital noise
+
+  Due to finite machine precision, over time phasors might
+  diverge from the unit circle. In certain intervals
+  adjust_phasor(complex_nr *phasor) is being called to 
+  re-adjust the length of a phasor to 1.
+
+  \param phasor Phasor to be adjusted.
+  */
 void adjust_phasor(complex_nr *phasor)
 {
     double length = sqrt(phasor->im * phasor->im + phasor->re * phasor->re);
@@ -137,7 +186,16 @@ void adjust_phasor(complex_nr *phasor)
     phasor->re *= adjustment;
 }
 
+/**
+  \brief set frequency of dsf
 
+  Sets fundamental and distances relative to a new frequency.
+  This keeps the overtone structure and corresponds with
+  setting the oscillating frequency of a conventional oscillator.
+
+  \param x dsf variables
+  \param frequency Frequency to set the dsf to
+  */ 
 void dsf_set_frequency(dsf *x, float frequency)
 {
     if(frequency != 0.0)
@@ -149,7 +207,19 @@ void dsf_set_frequency(dsf *x, float frequency)
     }
 }
 
+/**
+  \brief set ratio of overtones
 
+  All overtones are spaced with equal distance.
+  This function derives that distance as a ratio
+  from the fundamental frequency.
+
+  \param x dsf variables
+  \param ratio Ratio of fundamental frequency to
+  overtone spacing
+  \see dsf_set_fundamental(dsf *x, float frequency)
+  \see dsf_set_distance(dsf *x, float distance)
+  */ 
 void dsf_set_ratio(dsf *x, float ratio)
 {
     float new_distance = ratio * x->frequency; 
@@ -157,7 +227,17 @@ void dsf_set_ratio(dsf *x, float ratio)
 }
 
 
+/**
+  \brief set fundamental frequency
 
+  This sets the fundamental frequency without changing
+  the distance between the overtones.
+  
+  \param x dsf variables
+  \param frequency New fundamental frequency
+  \see dsf_set_ratio(dsf *x, float ratio)
+  \see dsf_set_frequency(dsf *x, float frequency)
+  */
 void dsf_set_fundamental(dsf *x, float frequency)
 {
     x->frequency = frequency; 
@@ -172,6 +252,17 @@ void dsf_set_fundamental(dsf *x, float frequency)
 }
 
 
+/**
+  \brief set distance between overtones
+
+  This sets the distance between overtones
+  without changing the fundamental frequency.  
+  
+  \param x dsf variables
+  \param distance New distance between overtones
+  \see dsf_set_ratio(dsf *x, float ratio)
+  \see dsf_set_frequency(dsf *x, float frequency)
+  */
 void dsf_set_distance(dsf *x, float distance)
 { 
     x->distance = distance; 
@@ -186,12 +277,33 @@ void dsf_set_distance(dsf *x, float distance)
 }
 
 
+/**
+  \brief set diminishing factor of overtones
+
+  The overtone series is tailing of by a weight
+  factor \f$ w \f$, where the nth overtone is scaled by
+  \f$ w^n \f$.
+
+  \param x dsf variables
+  \param weight New value for \f$ w \f$
+  */ 
 void dsf_set_weight(dsf *x, float weight)
 {
     x->weight = weight; 
 }
 
+/**
+  \brief set total number of partials to generate
 
+  This function takes user input x and 
+  calculates the maximum number of 
+  partials y that can be produced without aliasing
+  and sets the number of actually produced partials
+  to the lower of x and y.
+
+  \param x dsf variables
+  \param num_of_sines Number of partials to produce
+  */ 
 void dsf_set_num_of_sines(dsf *x, int num_of_sines)
 {
     if(num_of_sines > 0)
@@ -212,15 +324,7 @@ void dsf_set_num_of_sines(dsf *x, int num_of_sines)
         sprintf(msg, "sr: %f, usr: %d, actual: %d\n", x->sr, x->usr_num_of_sines, x->num_of_sines);
         //post(msg);
     } 
-}
-
-
-
-
-int phasor_close_to_one(complex_nr* x)
-{
-    return x->re > 0.995; 
-}
+} 
 
 
 void power_complex(complex_nr *x, int power, complex_nr *result)
