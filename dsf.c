@@ -39,7 +39,7 @@ dsf *dsf_new()
     x->frequency = 1;
     x->distance = 1;
 
-    dsf_set_frequency(x, 220);
+    dsf_set_fundamental(x, 220);
     dsf_set_distance(x, 220);
 
     return x; 
@@ -139,6 +139,26 @@ void adjust_phasor(complex_nr *phasor)
 
 
 void dsf_set_frequency(dsf *x, float frequency)
+{
+    if(frequency != 0.0)
+    { 
+        float ratio = frequency / x->frequency;
+        float new_distance = x->distance * ratio;
+        dsf_set_fundamental(x, frequency);
+        dsf_set_distance(x, new_distance); 
+    }
+}
+
+
+void dsf_set_ratio(dsf *x, float ratio)
+{
+    float new_distance = ratio * x->frequency; 
+    dsf_set_distance(x, new_distance); 
+}
+
+
+
+void dsf_set_fundamental(dsf *x, float frequency)
 {
     x->frequency = frequency; 
     // new frequency: adjust number of generated sines

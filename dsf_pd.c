@@ -166,8 +166,8 @@ void dsf_tilde_set_argument(t_dsf_tilde *x, float argument) {
     set_phasor_to_argument(x->dsf->increment_a, (INPRECISION) argument);
 }
 
-void dsf_tilde_set_frequency(t_dsf_tilde *x, float frequency) {
-    dsf_set_frequency(x->dsf, frequency);
+void dsf_tilde_set_fundamental(t_dsf_tilde *x, float frequency) {
+    dsf_set_fundamental(x->dsf, frequency);
 }
 
 void dsf_tilde_set_distance(t_dsf_tilde *x, float distance) {
@@ -182,7 +182,13 @@ void dsf_tilde_set_num_of_sines(t_dsf_tilde *x, float num_of_sines) {
     dsf_set_num_of_sines(x->dsf, (int)num_of_sines); 
 }
 
+void dsf_tilde_set_frequency(t_dsf_tilde *x, float frequency) {
+    dsf_set_frequency(x->dsf, frequency); 
+}
 
+void dsf_tilde_set_ratio(t_dsf_tilde *x, float ratio) {
+    dsf_set_ratio(x->dsf, ratio); 
+}
 /**
  * define the function-space of the class
  * within a single-object external the name of this function is very special
@@ -205,7 +211,7 @@ void dsf_tilde_setup(void) {
           (t_method)dsf_tilde_set_argument, gensym("argument"), A_DEFFLOAT, 0);
 
   class_addmethod(dsf_tilde_class,
-          (t_method)dsf_tilde_set_frequency, gensym("frequency"), A_DEFFLOAT, 0);
+          (t_method)dsf_tilde_set_fundamental, gensym("fundamental"), A_DEFFLOAT, 0);
 
   class_addmethod(dsf_tilde_class,
           (t_method)dsf_tilde_set_distance, gensym("distance"), A_DEFFLOAT, 0);
@@ -215,6 +221,12 @@ void dsf_tilde_setup(void) {
 
   class_addmethod(dsf_tilde_class,
           (t_method)dsf_tilde_set_num_of_sines, gensym("partials"), A_DEFFLOAT, 0);
+
+  class_addmethod(dsf_tilde_class,
+          (t_method)dsf_tilde_set_frequency, gensym("frequency"), A_DEFFLOAT, 0);
+
+  class_addmethod(dsf_tilde_class,
+          (t_method)dsf_tilde_set_ratio, gensym("ratio"), A_DEFFLOAT, 0);
   /* if no signal is connected to the first inlet, we can as well 
    * connect a number box to it and use it as "signal"
    */

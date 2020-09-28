@@ -86,12 +86,17 @@ void geometric_series(dsf *x, complex_nr *result);
 
 INPRECISION norm_factor(INPRECISION len, int num_of_sines);
 
-void dsf_set_frequency(dsf *x, float frequency);
+void dsf_set_fundamental(dsf *x, float frequency);
 
 void dsf_set_distance(dsf *x, float distance);
 
 void dsf_set_weight(dsf *x, float weight);
 
 void dsf_set_num_of_sines(dsf *x, int num_of_sines);
+
+void dsf_set_frequency(dsf *x, float frequency);
+
+void dsf_set_ratio(dsf *x, float ratio);
+
 
 #endif
