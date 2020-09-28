@@ -63,7 +63,6 @@ t_int *dsf_tilde_perform(t_int *w)
   /* the first element is a pointer to the dataspace of this object */
   t_dsf_tilde *x = (t_dsf_tilde *)(w[1]);
 
-  /* TODO: */
   /* in x->dsf is our actual data structure! */ 
 
   /* here is a pointer to the t_sample arrays that hold the 2 input signals */
@@ -74,25 +73,11 @@ t_int *dsf_tilde_perform(t_int *w)
   t_sample  *out2 =    (t_sample *)(w[5]);
   /* all signalblocks are of the same length */
   int          n =           (int)(w[6]);
-  /* get (and clip) the mixing-factor */
-  t_sample f_dsf = (x->f_dsf<0)?0.0:(x->f_dsf>1)?1.0:x->f_dsf;
 
 
   dsf_run(x->dsf, out1, out2, n);
 
-  /* just a counter 
-  int i; 
-
-   * this is the main routine: 
-   * mix the 2 input signals into the output signal
-   *
-  for(i=0; i<n; i++)
-    {
-      out[i]=in1[i]*(1-f_dsf)+in2[i]*f_dsf;
-    }
-
-
-  * return a pointer to the dataspace for the next dsp-object */
+  /* return a pointer to the dataspace for the next dsp-object */
 
   return (w+7);
 }
@@ -115,6 +100,9 @@ void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
 
   x->dsf->sr = sys_getsr();
   x->dsf->sr_inv = ((INPRECISION) 1.0) / sys_getsr();
+
+  dsf_set_frequency(x->dsf, x->dsf->frequency); 
+
   dsp_add(dsf_tilde_perform, 6, x,
           sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[3]->s_vec, sp[0]->s_n);
 }
@@ -139,7 +127,7 @@ void dsf_tilde_free(t_dsf_tilde *x)
  * this is the "constructor" of the class
  * the argument is the initial mixing-factor
  */
-void *dsf_tilde_new(t_floatarg f)
+void *dsf_tilde_new(t_floatarg f, t_floatarg r, t_floatarg n, t_floatarg w)
 {
   t_dsf_tilde *x = (t_dsf_tilde *)pd_new(dsf_tilde_class);
 
@@ -148,6 +136,20 @@ void *dsf_tilde_new(t_floatarg f)
 
 
   x->dsf = dsf_new();
+
+  f = f ? f : 220;
+  r = r ? r : 1;
+  n = n ? n : 100;
+  w = w ? w : 0.8;
+
+  post("init dsf with arguments\nfreq: %f\nratio: %f\npartials: %f\nweight: %f\n", f, r, n, w); 
+
+  dsf_set_weight(x->dsf, w);
+  dsf_set_num_of_sines(x->dsf, (int)n);
+  dsf_set_fundamental(x->dsf, f);
+  dsf_set_ratio(x->dsf, r);
+  dsf_set_frequency(x->dsf, f);
+
   
   /* create a new signal-inlet */
   x->x_in2 = inlet_new(&x->x_obj, &x->x_obj.ob_pd, &s_signal, &s_signal);
@@ -199,7 +201,8 @@ void dsf_tilde_setup(void) {
         (t_method)dsf_tilde_free,
 	sizeof(t_dsf_tilde),
         CLASS_DEFAULT, 
-        A_DEFFLOAT, 0);
+        A_DEFFLOAT, A_DEFFLOAT,
+        A_DEFFLOAT, A_DEFFLOAT, 0);
 
   /* whenever the audio-engine is turned on, the "dsf_tilde_dsp()" 
    * function will get called

@@ -57,11 +57,10 @@ dsf *dsf_new()
 
 
     x->weight = 0.5;
-    x->usr_num_of_sines = 2;
-    x->num_of_sines = 2;
-    x->norm_counter = 0;
-    x->frequency = 1;
-    x->distance = 1; 
+    x->usr_num_of_sines = 90;
+    x->num_of_sines = 90;
+    x->frequency = 220;
+    x->distance = 220;
 
     return x; 
 }
