@@ -198,8 +198,7 @@ void dsf_run(dsf *x, OUTPRECISION *out1, OUTPRECISION *out2, int vector_size)
         geometric_series(x, &result); 
 
         out1[i] = result.re * norm_factor(x->weight, x->num_of_sines); 
-        out2[i] = x->phasor_b->re;
-    }
-    
+        out2[i] = result.im * norm_factor(x->weight, x->num_of_sines); 
+    } 
 }
 

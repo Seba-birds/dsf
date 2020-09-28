@@ -1,5 +1,6 @@
+\mainpage Puredata DSF external
 
-Discrete summation formula
+\section intro Discrete summation formula
 
 When synthesizing sounds digitally,
 classic waveforms with rich spectra
@@ -29,11 +30,13 @@ formula exists. This formula can be computed
 in near-linear time, so that computational
 costs stay low.
 
-
-
-
-
-
+One main factor in this is the efficient
+calculation of a complex power function
+as implemented here: power_complex().
+Using a "divide-and-conquer" approach,
+the number of calculations are reduced
+to the 2-logarithm of the number of calculations
+in the naive implementation power_complex_naiv().
 
 
 
