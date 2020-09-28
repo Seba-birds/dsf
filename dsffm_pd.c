@@ -20,7 +20,7 @@
 /**
  * define a new "class" 
  */
-static t_class *dsf_tilde_class;
+static t_class *dsffm_tilde_class;
 
 
 /**
@@ -29,7 +29,7 @@ static t_class *dsf_tilde_class;
  * f_dsf denotes the mixing-factor
  * "f" is a dummy and is used to be able to send floats AS signals.
  */
-typedef struct _dsf_tilde {
+typedef struct _dsffm_tilde {
   t_object  x_obj;
   t_sample f_dsf;
   t_sample f;
@@ -40,7 +40,7 @@ typedef struct _dsf_tilde {
   t_inlet *x_in3;
   t_outlet *x_out1;
   t_outlet *x_out2;
-} t_dsf_tilde;
+} t_dsffm_tilde;
 
 
 /**
@@ -58,10 +58,10 @@ typedef struct _dsf_tilde {
  * we think is apropriate; "apropriate" is how we registered this function
  * in dsf_tilde_dsp()
  */
-t_int *dsf_tilde_perform(t_int *w)
+t_int *dsffm_tilde_perform(t_int *w)
 {
   /* the first element is a pointer to the dataspace of this object */
-  t_dsf_tilde *x = (t_dsf_tilde *)(w[1]);
+  t_dsffm_tilde *x = (t_dsffm_tilde *)(w[1]);
 
   /* TODO: */
   /* in x->dsf is our actual data structure! */ 
@@ -78,7 +78,7 @@ t_int *dsf_tilde_perform(t_int *w)
   t_sample f_dsf = (x->f_dsf<0)?0.0:(x->f_dsf>1)?1.0:x->f_dsf;
 
 
-  dsf_run(x->dsf, out1, out2, n);
+  dsffm_run(x->dsf, out1, out2, n);
 
   /* just a counter 
   int i; 
@@ -101,12 +101,12 @@ t_int *dsf_tilde_perform(t_int *w)
 /**
  * register a special perform-routine at the dsp-engine
  * this function gets called whenever the DSP is turned ON
- * the name of this function is registered in dsf_tilde_setup()
+ * the name of this function is registered in dsffm_tilde_setup()
  */
-void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
+void dsffm_tilde_dsp(t_dsffm_tilde *x, t_signal **sp)
 {
-  /* add dsf_tilde_perform() to the DSP-tree;
-   * the dsf_tilde_perform() will expect "5" arguments (packed into an
+  /* add dsffm_tilde_perform() to the DSP-tree;
+   * the dsffm_tilde_perform() will expect "5" arguments (packed into an
    * t_int-array), which are:
    * the objects data-space, 3 signal vectors (which happen to be
    * 2 input signals and 1 output signal) and the length of the
@@ -115,7 +115,7 @@ void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
 
   x->dsf->sr = sys_getsr();
   x->dsf->sr_inv = ((INPRECISION) 1.0) / sys_getsr();
-  dsp_add(dsf_tilde_perform, 6, x,
+  dsp_add(dsffm_tilde_perform, 6, x,
           sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[3]->s_vec, sp[0]->s_n);
 }
 
@@ -123,7 +123,7 @@ void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
  * this is the "destructor" of the class;
  * it allows us to free dynamically allocated ressources
  */
-void dsf_tilde_free(t_dsf_tilde *x)
+void dsffm_tilde_free(t_dsffm_tilde *x)
 {
   dsf_free(x->dsf);
   /* free any ressources associated with the given inlet */
@@ -139,9 +139,9 @@ void dsf_tilde_free(t_dsf_tilde *x)
  * this is the "constructor" of the class
  * the argument is the initial mixing-factor
  */
-void *dsf_tilde_new(t_floatarg f)
+void *dsffm_tilde_new(t_floatarg f)
 {
-  t_dsf_tilde *x = (t_dsf_tilde *)pd_new(dsf_tilde_class);
+  t_dsffm_tilde *x = (t_dsffm_tilde *)pd_new(dsffm_tilde_class);
 
   /* save the mixing factor in our dataspace */
   x->f_dsf = f;
@@ -162,73 +162,34 @@ void *dsf_tilde_new(t_floatarg f)
   return (void *)x;
 }
 
-void dsf_tilde_set_argument(t_dsf_tilde *x, float argument) {
-    set_phasor_to_argument(x->dsf->increment_a, (INPRECISION) argument);
+
+void dsffm_tilde_set_fundamental(t_dsffm_tilde *x, float frequency) {
+    dsffm_set_fundamental(x->dsf, frequency);
 }
 
-void dsf_tilde_set_fundamental(t_dsf_tilde *x, float frequency) {
-    dsf_set_fundamental(x->dsf, frequency);
-}
-
-void dsf_tilde_set_distance(t_dsf_tilde *x, float distance) {
-    dsf_set_distance(x->dsf, distance);
-}
-
-void dsf_tilde_set_weight(t_dsf_tilde *x, float weight) {
-    dsf_set_weight(x->dsf, weight); 
-}
-
-void dsf_tilde_set_num_of_sines(t_dsf_tilde *x, float num_of_sines) {
-    dsf_set_num_of_sines(x->dsf, (int)num_of_sines); 
-}
-
-void dsf_tilde_set_frequency(t_dsf_tilde *x, float frequency) {
-    dsf_set_frequency(x->dsf, frequency); 
-}
-
-void dsf_tilde_set_ratio(t_dsf_tilde *x, float ratio) {
-    dsf_set_ratio(x->dsf, ratio); 
-}
 /**
  * define the function-space of the class
  * within a single-object external the name of this function is very special
  */
-void dsf_tilde_setup(void) {
-  dsf_tilde_class = class_new(gensym("dsf~"),
-        (t_newmethod)dsf_tilde_new,
-        (t_method)dsf_tilde_free,
-	sizeof(t_dsf_tilde),
+void dsffm_tilde_setup(void) {
+  dsffm_tilde_class = class_new(gensym("dsffm~"),
+        (t_newmethod)dsffm_tilde_new,
+        (t_method)dsffm_tilde_free,
+	sizeof(t_dsffm_tilde),
         CLASS_DEFAULT, 
         A_DEFFLOAT, 0);
 
-  /* whenever the audio-engine is turned on, the "dsf_tilde_dsp()" 
+  /* whenever the audio-engine is turned on, the "dsffm_tilde_dsp()" 
    * function will get called
    */
-  class_addmethod(dsf_tilde_class,
-        (t_method)dsf_tilde_dsp, gensym("dsp"), 0);
+  class_addmethod(dsffm_tilde_class,
+        (t_method)dsffm_tilde_dsp, gensym("dsp"), 0); 
 
-  class_addmethod(dsf_tilde_class,
-          (t_method)dsf_tilde_set_argument, gensym("argument"), A_DEFFLOAT, 0);
+  class_addmethod(dsffm_tilde_class,
+          (t_method)dsffm_tilde_set_fundamental, gensym("fundamental"), A_DEFFLOAT, 0);
 
-  class_addmethod(dsf_tilde_class,
-          (t_method)dsf_tilde_set_fundamental, gensym("fundamental"), A_DEFFLOAT, 0);
-
-  class_addmethod(dsf_tilde_class,
-          (t_method)dsf_tilde_set_distance, gensym("distance"), A_DEFFLOAT, 0);
-
-  class_addmethod(dsf_tilde_class,
-          (t_method)dsf_tilde_set_weight, gensym("weight"), A_DEFFLOAT, 0);
-
-  class_addmethod(dsf_tilde_class,
-          (t_method)dsf_tilde_set_num_of_sines, gensym("partials"), A_DEFFLOAT, 0);
-
-  class_addmethod(dsf_tilde_class,
-          (t_method)dsf_tilde_set_frequency, gensym("frequency"), A_DEFFLOAT, 0);
-
-  class_addmethod(dsf_tilde_class,
-          (t_method)dsf_tilde_set_ratio, gensym("ratio"), A_DEFFLOAT, 0);
   /* if no signal is connected to the first inlet, we can as well 
    * connect a number box to it and use it as "signal"
    */
-  CLASS_MAINSIGNALIN(dsf_tilde_class, t_dsf_tilde, f);
+  CLASS_MAINSIGNALIN(dsffm_tilde_class, t_dsffm_tilde, f);
 }

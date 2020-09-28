@@ -3,9 +3,6 @@
 #ifndef DSF_H
 #define DSF_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 #include "dsflib.h"
 #include "m_pd.h"
 
