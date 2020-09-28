@@ -31,13 +31,9 @@ static t_class *dsf_tilde_class;
  */
 typedef struct _dsf_tilde {
   t_object  x_obj;
-  t_sample f_dsf;
-  t_sample f;
 
   dsf *dsf;
 
-  t_inlet *x_in2;
-  t_inlet *x_in3;
   t_outlet *x_out1;
   t_outlet *x_out2;
 } t_dsf_tilde;
@@ -65,21 +61,18 @@ t_int *dsf_tilde_perform(t_int *w)
 
   /* in x->dsf is our actual data structure! */ 
 
-  /* here is a pointer to the t_sample arrays that hold the 2 input signals */
-  t_sample  *in1 =    (t_sample *)(w[2]);
-  t_sample  *in2 =    (t_sample *)(w[3]);
   /* here comes the signalblock that will hold the output signal */
-  t_sample  *out1 =    (t_sample *)(w[4]);
-  t_sample  *out2 =    (t_sample *)(w[5]);
+  t_sample  *out1 =    (t_sample *)(w[2]);
+  t_sample  *out2 =    (t_sample *)(w[3]);
   /* all signalblocks are of the same length */
-  int          n =           (int)(w[6]);
+  int          n =           (int)(w[4]);
 
 
   dsf_run(x->dsf, out1, out2, n);
 
   /* return a pointer to the dataspace for the next dsp-object */
 
-  return (w+7);
+  return (w+5);
 }
 
 
@@ -103,8 +96,8 @@ void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
 
   dsf_set_frequency(x->dsf, x->dsf->frequency); 
 
-  dsp_add(dsf_tilde_perform, 6, x,
-          sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[3]->s_vec, sp[0]->s_n);
+  dsp_add(dsf_tilde_perform, 4, x,
+          sp[0]->s_vec, sp[1]->s_vec, sp[0]->s_n);
 }
 
 /**
@@ -114,9 +107,6 @@ void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
 void dsf_tilde_free(t_dsf_tilde *x)
 {
   dsf_free(x->dsf);
-  /* free any ressources associated with the given inlet */
-  inlet_free(x->x_in2);
-  inlet_free(x->x_in3);
 
   /* free any ressources associated with the given outlet */
   outlet_free(x->x_out1);
@@ -129,11 +119,7 @@ void dsf_tilde_free(t_dsf_tilde *x)
  */
 void *dsf_tilde_new(t_floatarg f, t_floatarg r, t_floatarg n, t_floatarg w)
 {
-  t_dsf_tilde *x = (t_dsf_tilde *)pd_new(dsf_tilde_class);
-
-  /* save the mixing factor in our dataspace */
-  x->f_dsf = f;
-
+  t_dsf_tilde *x = (t_dsf_tilde *)pd_new(dsf_tilde_class); 
 
   x->dsf = dsf_new();
 
@@ -149,13 +135,6 @@ void *dsf_tilde_new(t_floatarg f, t_floatarg r, t_floatarg n, t_floatarg w)
   dsf_set_fundamental(x->dsf, f);
   dsf_set_ratio(x->dsf, r);
   dsf_set_frequency(x->dsf, f);
-
-  
-  /* create a new signal-inlet */
-  x->x_in2 = inlet_new(&x->x_obj, &x->x_obj.ob_pd, &s_signal, &s_signal);
-
-  /* create a new passive inlet for the mixing-factor */
-  x->x_in3 = floatinlet_new (&x->x_obj, &x->f_dsf);
 
   /* create a new signal-outlet */
   x->x_out1 = outlet_new(&x->x_obj, &s_signal);
@@ -230,8 +209,4 @@ void dsf_tilde_setup(void) {
 
   class_addmethod(dsf_tilde_class,
           (t_method)dsf_tilde_set_ratio, gensym("ratio"), A_DEFFLOAT, 0);
-  /* if no signal is connected to the first inlet, we can as well 
-   * connect a number box to it and use it as "signal"
-   */
-  CLASS_MAINSIGNALIN(dsf_tilde_class, t_dsf_tilde, f);
 }
