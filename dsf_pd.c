@@ -1,13 +1,17 @@
-/*
- * HOWTO write an External for Pure data
- * (c) 2001-2006 IOhannes m zmölnig zmoelnig[AT]iem.at
- *
- * this is the source-code for the fourth example in the HOWTO
- * it creates a simple dsp-object:
- * 2 input signals are mixed into 1 output signal
- * the mixing-factor can be set via the 3rd inlet
- *
- * for legal issues please see the file LICENSE.txt
+/**
+  \file dsf_pd.c
+  \author Johannes Zmoelnig, edited by Sebastian Zimmermann
+  \date 2001-2006, 2020
+  \brief This file creates the interface for the pure data dsf object
+
+  Interface functionality is implemented in this
+  file, while actual logic is found in files
+  dsf.c, dsffm.c and dsflib.c.
+
+
+  \see https://github.com/pure-data/externals-howto/tree/master/example4
+
+
  */
 
 
@@ -24,10 +28,11 @@ static t_class *dsf_tilde_class;
 
 
 /**
- * this is the dataspace of our new object
- * the first element is the mandatory "t_object"
- * f_dsf denotes the mixing-factor
- * "f" is a dummy and is used to be able to send floats AS signals.
+   \brief dataspace of new pd object 
+
+   t_dsf_tilde holds pointers to the dsf variables,
+   and two outlets for the calculated signal
+   and its quadrature signal.
  */
 typedef struct _dsf_tilde {
   t_object  x_obj;
@@ -40,6 +45,8 @@ typedef struct _dsf_tilde {
 
 
 /**
+   \brief core performance routine
+
  * this is the core of the object
  * this perform-routine is called for each signal block
  * the name of this function is arbitrary and is registered to Pd in the 
@@ -60,8 +67,7 @@ t_int *dsf_tilde_perform(t_int *w)
   t_dsf_tilde *x = (t_dsf_tilde *)(w[1]);
 
   /* in x->dsf is our actual data structure! */ 
-
-  /* here comes the signalblock that will hold the output signal */
+  /* here come the signalblocks that will hold the output signal */
   t_sample  *out1 =    (t_sample *)(w[2]);
   t_sample  *out2 =    (t_sample *)(w[3]);
   /* all signalblocks are of the same length */
@@ -70,13 +76,14 @@ t_int *dsf_tilde_perform(t_int *w)
 
   dsf_run(x->dsf, out1, out2, n);
 
-  /* return a pointer to the dataspace for the next dsp-object */
-
+  /* return a pointer to the dataspace for the next dsp-object */ 
   return (w+5);
 }
 
 
 /**
+   \brief initialise object on dsp-engine start-up
+
  * register a special perform-routine at the dsp-engine
  * this function gets called whenever the DSP is turned ON
  * the name of this function is registered in dsf_tilde_setup()
@@ -84,10 +91,10 @@ t_int *dsf_tilde_perform(t_int *w)
 void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
 {
   /* add dsf_tilde_perform() to the DSP-tree;
-   * the dsf_tilde_perform() will expect "5" arguments (packed into an
+   * the dsf_tilde_perform() will expect "4" arguments (packed into an
    * t_int-array), which are:
-   * the objects data-space, 3 signal vectors (which happen to be
-   * 2 input signals and 1 output signal) and the length of the
+   * the objects data-space, 2 signal vectors (which happen to be
+   * 2 output signals) and the length of the
    * signal vectors (all vectors are of the same length)
    */
 
@@ -101,6 +108,8 @@ void dsf_tilde_dsp(t_dsf_tilde *x, t_signal **sp)
 }
 
 /**
+   \brief destructor of dataspace object
+
  * this is the "destructor" of the class;
  * it allows us to free dynamically allocated ressources
  */
@@ -114,8 +123,15 @@ void dsf_tilde_free(t_dsf_tilde *x)
 }
 
 /**
- * this is the "constructor" of the class
- * the argument is the initial mixing-factor
+   \brief constructor of dataspace object
+
+ * this is the "constructor" of the class.
+
+    \param f Initial frequency of dsp module
+    \param r Initial ratio of overtones to frequency
+    \param n Initial number of partials from which to construct the sound
+    \param w Initial weight of overtones
+ * 
  */
 void *dsf_tilde_new(t_floatarg f, t_floatarg r, t_floatarg n, t_floatarg w)
 {
@@ -143,36 +159,105 @@ void *dsf_tilde_new(t_floatarg f, t_floatarg r, t_floatarg n, t_floatarg w)
   return (void *)x;
 }
 
+
+/**
+  \brief setter method for increment phasor angle
+
+  This is for testing only and sets the increment
+  phasor to an angle given by the argument parameter.
+
+  \param x pd object dataspace
+  \param argument Angle to set the increment phasor to
+  */
 void dsf_tilde_set_argument(t_dsf_tilde *x, float argument) {
     set_phasor_to_argument(x->dsf->increment_a, (INPRECISION) argument);
 }
 
+/**
+  \brief setter method for fundamental frequency
+
+  Set the fundamental frequency of dsp module
+  without altering the overtone spacing.
+
+  \param x pd object dataspace
+  \param frequency Frequency to set the fundamental to.
+  */
 void dsf_tilde_set_fundamental(t_dsf_tilde *x, float frequency) {
     dsf_set_fundamental(x->dsf, frequency);
 }
 
+/**
+  \brief setter method for spacing of overtones
+
+  Set the spacing of overtones of dsp module
+  without altering the fundamental frequency.
+
+  \param x pd object dataspace
+  \param distance New spacing for overtones.
+  */
 void dsf_tilde_set_distance(t_dsf_tilde *x, float distance) {
     dsf_set_distance(x->dsf, distance);
 }
 
+/**
+  \brief setter method for weight of overtones
+
+  Set the weight x of overtones of dsp module.
+  The nth overtone is weighted by \f$ x^n \f$.
+
+  \param x pd object dataspace
+  \param distance New weight for overtones.
+  */
 void dsf_tilde_set_weight(t_dsf_tilde *x, float weight) {
     dsf_set_weight(x->dsf, weight); 
 }
 
+/**
+  \brief setter method for number of partials
+
+  Set number of partials to create the sound
+  with. The number is limited with regard to
+  the sample rate and the current frequency
+  to avoid aliasing.
+
+  \param x pd object dataspace
+  \param num_of_sines Number of partials to create
+  sound from 
+  */
 void dsf_tilde_set_num_of_sines(t_dsf_tilde *x, float num_of_sines) {
     dsf_set_num_of_sines(x->dsf, (int)num_of_sines); 
 }
 
+/**
+  \brief setter method for frequency
+
+  Set new frequency and change overtone spacing
+  accordingly to keep same sonic characteristics.
+
+  \param x pd object dataspace
+  \param frequency New frequency to set the dsp module to
+  */
 void dsf_tilde_set_frequency(t_dsf_tilde *x, float frequency) {
     dsf_set_frequency(x->dsf, frequency); 
 }
 
+/**
+  \brief setter method for overtone ratio
+
+  Set overtone spacing relative to fundamental
+  frequency. New spacing is set to \f$ x \cdot f \f$,
+  where x is ratio parameter and f is current 
+  fundamental frequency.
+
+  \param x pd object dataspace
+  \param ratio New ratio for overtone spacing
+  */
 void dsf_tilde_set_ratio(t_dsf_tilde *x, float ratio) {
     dsf_set_ratio(x->dsf, ratio); 
 }
+
 /**
- * define the function-space of the class
- * within a single-object external the name of this function is very special
+ * \brief define the function-space of the class
  */
 void dsf_tilde_setup(void) {
   dsf_tilde_class = class_new(gensym("dsf~"),

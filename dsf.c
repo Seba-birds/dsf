@@ -46,8 +46,8 @@ void dsf_set_frequency(dsf *x, float frequency)
   \param x dsf variables
   \param ratio Ratio of fundamental frequency to
   overtone spacing
-  \see dsf_set_fundamental(dsf *x, float frequency)
-  \see dsf_set_distance(dsf *x, float distance)
+  \see dsf_set_fundamental()
+  \see dsf_set_distance()
   */ 
 void dsf_set_ratio(dsf *x, float ratio)
 {
@@ -64,8 +64,8 @@ void dsf_set_ratio(dsf *x, float ratio)
   
   \param x dsf variables
   \param frequency New fundamental frequency
-  \see dsf_set_ratio(dsf *x, float ratio)
-  \see dsf_set_frequency(dsf *x, float frequency)
+  \see dsf_set_ratio()
+  \see dsf_set_frequency()
   */
 void dsf_set_fundamental(dsf *x, float frequency)
 {
@@ -89,8 +89,8 @@ void dsf_set_fundamental(dsf *x, float frequency)
   
   \param x dsf variables
   \param distance New distance between overtones
-  \see dsf_set_ratio(dsf *x, float ratio)
-  \see dsf_set_frequency(dsf *x, float frequency)
+  \see dsf_set_ratio()
+  \see dsf_set_frequency()
   */
 void dsf_set_distance(dsf *x, float distance)
 { 
@@ -156,7 +156,32 @@ void dsf_set_num_of_sines(dsf *x, int num_of_sines)
 } 
 
 
+/**
+  \brief calculate audio signal
 
+  This function is called for every block of audio
+  that the host needs to generate.
+  For every sample it updates the phasors by
+  multiplication with the respective increment phasor,
+  so that the dsf synthesis keeps track of two
+  oscillations: one for the fundamental frequency,
+  one for the overtones.
+
+  Those two phasors are then put together in a
+  geometric series which is calculated in closed
+  form. The result is normalized and written sample
+  by sample in the provided output buffer.
+
+  One output buffer is filled with the real part
+  of the signal, the other one with the imaginary
+  part, creating two signals in quadrature.
+
+  \param x dsf variables
+  \param out1 Pointer to output buffer for real part of signal
+  \param out2 Pointer to output buffer for imaginary part of signal
+  \param vector_size Size of output buffer
+
+  */ 
 void dsf_run(dsf *x, OUTPRECISION *out1, OUTPRECISION *out2, int vector_size)
 {
     for(int i = 0; i < vector_size; i++) { 
