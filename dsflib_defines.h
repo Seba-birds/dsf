@@ -1,9 +1,14 @@
 /**
- * @file stp_defines.h
- * @author Thomas Resch <br>
+ * \file dsflib_defines.h
+ * \author Sebastian Zimmermann, based on a file by <br>
+ * Thomas Resch <br>
  * Audiocommunication Group, Technical University Berlin <br>
  * University of Applied Sciences Nordwestschweiz (FHNW), Music-Academy, Research and Development <br>
- * Preprocessor Instructions for the stp library
+ * Preprocessor Instructions for the dsf library
+
+   \brief Define macros to customize compilation
+
+   Macros for pi and float precision.
  */
 
 #ifndef DSF_DEFINES_H

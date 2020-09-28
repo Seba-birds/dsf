@@ -1,4 +1,10 @@
+/**
+  \file dsflib.h
+  \author Sebastian Zimmermann
+  \date September 2020
+  \brief function declarations for dsflib.c
 
+  */
 #ifndef DSFLIB_H
 #define DSFLIB_H
 
@@ -9,6 +15,9 @@
 #include "m_pd.h"
 
 
+/**
+  \brief complex number with real part and imaginary part
+  */
 typedef struct complex_nr
 {
     double im;
@@ -17,6 +26,9 @@ typedef struct complex_nr
 } complex_nr;
 
 
+/**
+  \brief dataspace to hold dsf variables
+  */
 typedef struct dsf
 {
     INPRECISION sr_inv;
@@ -26,7 +38,6 @@ typedef struct dsf
     INPRECISION weight;
     int usr_num_of_sines;
     int num_of_sines;
-    int norm_counter;
     float sr;
 
     complex_nr *phasor_a;
