@@ -8,7 +8,7 @@
 
 
 void dsffm_run(dsf *x, 
-        INPRECISION *in1, INPRECISION *in2, //INPRECISION *in3,
+        INPRECISION *in1, INPRECISION *in2, INPRECISION *in3,
         OUTPRECISION *out1, OUTPRECISION *out2, 
         int vector_size); 
 

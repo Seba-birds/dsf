@@ -9,7 +9,7 @@ void dsffm_set_fundamental(dsf *x, float frequency)
 }
 
 void dsffm_run(dsf *x, 
-        INPRECISION *in1, INPRECISION *in2, //INPRECISION *in3,
+        INPRECISION *in1, INPRECISION *in2, INPRECISION *in3,
         OUTPRECISION *out1, OUTPRECISION *out2, 
         int vector_size)
 {
@@ -19,8 +19,8 @@ void dsffm_run(dsf *x,
         float freq = mtof(in1[i]); 
         dsf_set_frequency(x, freq); 
         dsf_set_ratio(x, in2[i] + 1.0); 
-        //float weight = clip(0.0, 1.5, x->weight + in3[i]); 
-        //dsf_set_weight(x, weight);
+        float weight = clip(0.0, 1.5, x->weight + in3[i]); 
+        dsf_set_weight(x, weight);
 
 
         multiply_complex(x->phasor_a, x->increment_a, x->phasor_a); 

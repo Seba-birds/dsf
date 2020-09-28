@@ -70,32 +70,17 @@ t_int *dsffm_tilde_perform(t_int *w)
   /* here is a pointer to the t_sample arrays that hold the 2 input signals */
   t_sample  *in1 =    (t_sample *)(w[2]);
   t_sample  *in2 =    (t_sample *)(w[3]);
+  t_sample  *in3 =    (t_sample *)(w[4]);
   /* here comes the signalblock that will hold the output signal */
-  t_sample  *out1 =    (t_sample *)(w[4]);
-  t_sample  *out2 =    (t_sample *)(w[5]);
+  t_sample  *out1 =    (t_sample *)(w[5]);
+  t_sample  *out2 =    (t_sample *)(w[6]);
   /* all signalblocks are of the same length */
-  int          n =           (int)(w[6]);
-  /* get (and clip) the mixing-factor */
-  t_sample f_dsf = (x->f_dsf<0)?0.0:(x->f_dsf>1)?1.0:x->f_dsf;
+  int          n =           (int)(w[7]);
+
+  dsffm_run(x->dsf, in1, in2, in3, out1, out2, n);
 
 
-  dsffm_run(x->dsf, in1, in2, out1, out2, n);
-
-  /* just a counter 
-  int i; 
-
-   * this is the main routine: 
-   * mix the 2 input signals into the output signal
-   *
-  for(i=0; i<n; i++)
-    {
-      out[i]=in1[i]*(1-f_dsf)+in2[i]*f_dsf;
-    }
-
-
-  * return a pointer to the dataspace for the next dsp-object */
-
-  return (w+7);
+  return (w+8);
 }
 
 
@@ -116,8 +101,8 @@ void dsffm_tilde_dsp(t_dsffm_tilde *x, t_signal **sp)
 
   x->dsf->sr = sys_getsr();
   x->dsf->sr_inv = ((INPRECISION) 1.0) / sys_getsr();
-  dsp_add(dsffm_tilde_perform, 6, x,
-          sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[3]->s_vec, sp[0]->s_n);
+  dsp_add(dsffm_tilde_perform, 7, x,
+          sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[3]->s_vec, sp[4]->s_vec, sp[0]->s_n);
 }
 
 /**
@@ -153,8 +138,8 @@ void *dsffm_tilde_new(t_floatarg f)
   /* create a new signal-inlet */
   x->x_in2 = inlet_new(&x->x_obj, &x->x_obj.ob_pd, &s_signal, &s_signal);
 
-  /* create a new passive inlet for the mixing-factor */
-  x->x_in3 = floatinlet_new (&x->x_obj, &x->f_dsf);
+  /* create a new inlet*/
+  x->x_in3 = inlet_new(&x->x_obj, &x->x_obj.ob_pd, &s_signal, &s_signal);
 
   /* create a new signal-outlet */
   x->x_out1 = outlet_new(&x->x_obj, &s_signal);
