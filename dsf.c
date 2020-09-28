@@ -2,7 +2,12 @@
   \file dsf.c
   \author Sebastian Zimmermann
   \date September 2020
-  \brief dsf.c contains the main functionality of the dsf synthesis.
+  \brief wrapping dsflib-functions to user-friendly pd object
+
+  Main functionality is found in dsflib.c.
+  dsf.c produces a pd object that manages parameter
+  changes at control rate via messages.
+
 
   \see James A. Moorer, "The Synthesis of Complex Audio Spectra by Means of Discrete Summation Formulas", 1976
   \see https://ccrma.stanford.edu/files/papers/stanm5.pdf

@@ -1,3 +1,21 @@
+/**
+  \file dsffm.c
+  \author Sebastian Zimmermann
+  \date September 2020
+  \brief wrapping dsflib-functions to performance-friendly pd object
+
+  Main functionality is found in dsflib.c.
+  dsffm.c produces a pd object that manages parameter
+  changes at signal rate, enabling the creation of 
+  complex spectra with little effort.
+
+
+
+  \see James A. Moorer, "The Synthesis of Complex Audio Spectra by Means of Discrete Summation Formulas", 1976
+  \see https://ccrma.stanford.edu/files/papers/stanm5.pdf
+  \see Tim Stilson,  Julius Smith, "Alias-Free Digital Synthesis of Classic Analog Waveforms", 1996
+  \see https://ccrma.stanford.edu/~stilti/papers/blit.pdf
+  */
 
 #include "dsffm.h"
 #include "dsflib.h"

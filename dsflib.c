@@ -3,7 +3,7 @@
   \file dsflib.c
   \author Sebastian Zimmermann
   \date September 2020
-  \brief dsf.c contains the main functionality of the dsf synthesis.
+  \brief contains the main functionality of the dsf synthesis.
 
   \see James A. Moorer, "The Synthesis of Complex Audio Spectra by Means of Discrete Summation Formulas", 1976
   \see https://ccrma.stanford.edu/files/papers/stanm5.pdf
@@ -92,7 +92,13 @@ int min(int a, int b)
     return x; 
 }
 
-
+/**
+  \brief clip float value between a min and a max value
+  \param min Minimal value
+  \param max Maximal value
+  \param signal Signal to be clipped
+  \return clipped signal
+  */ 
 float clip(float min, float max, float signal)
 {
     float out = signal;
@@ -111,6 +117,12 @@ float clip(float min, float max, float signal)
 }
 
 
+/**
+  \brief convert midi note values to frequencies
+
+  \param note midi note value
+  \return corresponding frequency
+  */
 float mtof(float note)
 {
     float frequency = pow(2.0, (note - 69.0) / 12.0) * 440; 
@@ -450,6 +462,18 @@ void geometric_series(dsf *x, complex_nr *result)
 }
 
 
+/**
+  \brief calculate maximal value of geometric series
+
+  use the result to normalise a signal that was calculated
+  with the geometric series.
+
+  \param len This is the weight factor of the dsf synthesis
+  \param num_of_sines Number of partials in synthesis
+  \returns A scalar x that normalizes the signal s generated
+  by the geometric series when applied like so: 
+  \f$ s_{norm} = s \cdot x\f$.
+  */ 
 INPRECISION norm_factor(INPRECISION len, int num_of_sines)
 {
     INPRECISION norm_factor = 0;

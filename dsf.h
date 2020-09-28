@@ -1,12 +1,15 @@
+/**
+  \file dsf.h
+  \author Sebastian Zimmermann
+  \date September 2020
+  \brief function declarations for dsf.c
 
-
+  */
 #ifndef DSF_H
 #define DSF_H
 
 #include "dsflib.h"
-#include "m_pd.h"
-
-
+#include "m_pd.h" 
 
 void dsf_run(dsf *x, OUTPRECISION *out1, OUTPRECISION *out2, int vector_size); 
 
