@@ -7,7 +7,10 @@
 
 
 
-void dsffm_run(dsf *x, OUTPRECISION *out1, OUTPRECISION *out2, int vector_size); 
+void dsffm_run(dsf *x, 
+        INPRECISION *in1, INPRECISION *in2, //INPRECISION *in3,
+        OUTPRECISION *out1, OUTPRECISION *out2, 
+        int vector_size); 
 
 void dsffm_set_fundamental(dsf *x, float frequency);
 

@@ -15,6 +15,7 @@
  * include the interface to Pd 
  */
 #include "m_pd.h"
+#include "dsf.h"
 #include "dsffm.h"
 
 /**
@@ -78,7 +79,7 @@ t_int *dsffm_tilde_perform(t_int *w)
   t_sample f_dsf = (x->f_dsf<0)?0.0:(x->f_dsf>1)?1.0:x->f_dsf;
 
 
-  dsffm_run(x->dsf, out1, out2, n);
+  dsffm_run(x->dsf, in1, in2, out1, out2, n);
 
   /* just a counter 
   int i; 
@@ -167,6 +168,15 @@ void dsffm_tilde_set_fundamental(t_dsffm_tilde *x, float frequency) {
     dsffm_set_fundamental(x->dsf, frequency);
 }
 
+void dsffm_tilde_set_weight(t_dsffm_tilde *x, float weight) {
+    dsf_set_weight(x->dsf, weight); 
+}
+
+void dsffm_tilde_set_num_of_sines(t_dsffm_tilde *x, float num_of_sines) {
+    dsf_set_num_of_sines(x->dsf, (int)num_of_sines); 
+}
+
+
 /**
  * define the function-space of the class
  * within a single-object external the name of this function is very special
@@ -187,6 +197,12 @@ void dsffm_tilde_setup(void) {
 
   class_addmethod(dsffm_tilde_class,
           (t_method)dsffm_tilde_set_fundamental, gensym("fundamental"), A_DEFFLOAT, 0);
+
+  class_addmethod(dsffm_tilde_class,
+          (t_method)dsffm_tilde_set_num_of_sines, gensym("partials"), A_DEFFLOAT, 0);
+
+  class_addmethod(dsffm_tilde_class,
+          (t_method)dsffm_tilde_set_weight, gensym("weight"), A_DEFFLOAT, 0);
 
   /* if no signal is connected to the first inlet, we can as well 
    * connect a number box to it and use it as "signal"

@@ -39,6 +39,10 @@ typedef struct dsf
 
 int min(int a, int b); 
 
+float mtof(float note);
+
+float clip(float min, float max, float signal);
+
 complex_nr *new_complex_nr();
 
 dsf *dsf_new();

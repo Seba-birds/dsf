@@ -94,6 +94,31 @@ int min(int a, int b)
 }
 
 
+float clip(float min, float max, float signal)
+{
+    float out = signal;
+
+    if(signal < min)
+    {
+        out = min;
+    }
+
+    if(signal > max)
+    {
+        out = max;
+    }
+
+    return out;
+}
+
+
+float mtof(float note)
+{
+    float frequency = pow(2.0, (note - 69.0) / 12.0) * 440; 
+    return frequency;
+}
+
+
 /**
   \brief set angle of increment to frequency
 
