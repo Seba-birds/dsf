@@ -326,7 +326,13 @@ void dsf_set_num_of_sines(dsf *x, int num_of_sines)
     } 
 } 
 
+/**
+  \brief calculate power of complex number
 
+  \param x Base
+  \param power Exponent
+  \param result Pointer to memory where to write the result to
+  */ 
 void power_complex(complex_nr *x, int power, complex_nr *result)
 {
     // stop recursion:
@@ -351,7 +357,14 @@ void power_complex(complex_nr *x, int power, complex_nr *result)
 }
 
 
+/**
+  \brief calculate power of complex number
 
+  This function is computationally very expensive.
+  \param x Base
+  \param power Exponent
+  \param result Pointer to memory where to write the result to
+  */ 
 void power_complex_naiv(complex_nr *x, int power, complex_nr *result)
 {
     result->im = x->im;
@@ -363,7 +376,20 @@ void power_complex_naiv(complex_nr *x, int power, complex_nr *result)
 }
 
 
+/**
+  \brief calculate geometric series by addition
 
+  This function performs the actual addition of
+  the geometric series and is thus computationally
+  expensive.
+
+  \param x dsf variables
+  \param result Pointer to memory where to write the sum
+  of the geometric series to
+  \param norm_factor Pointer to memory where to store the
+  maximal possible value of the sum to. This can be used to
+  normalize the signal
+  */
 void calculate_series(dsf *x, complex_nr *result, double *norm_factor)
 {
     INPRECISION powered_weight;
@@ -404,32 +430,41 @@ void calculate_series(dsf *x, complex_nr *result, double *norm_factor)
 
 
 
-/*
- *
+/**
+  \brief calculate \f$ 1 - x, x \in \mathbb{C} \f$
 
- SUM(0..k) a * (wb)^k = a * (1 - (wb)^k) / (1 - wb)
-
- (wb)^k = w^k * b^k
-
- *
- * 
- */
-
-
+  \param x Number to substract from 1
+  \param result Pointer to memory where to write the result to
+  */
 void one_minus_complex(complex_nr *x, complex_nr *result)
 {
     result->im = 0.0 - x->im;
     result->re = 1.0 - x->re; 
 }
 
+/**
+  \brief calculate \f$ a \cdot x, x \in \mathbb{C} \f$
 
+  \param x Complex number to scale
+  \param scalar Scalar to scale x with 
+  \param result Pointer to memory where to write the result to
+  */
 void scale_complex(complex_nr *x, double scalar, complex_nr *result)
 { 
     result->im = scalar * x->im;
     result->re = scalar * x->re; 
 }
 
+/**
+  \brief calculate denominator of closed form of geometric series
 
+  Closed form of geometric series is 
+  \f$ a \cdot \frac{1 - (wb)^n}{1 - wb} \f$.
+  This function calculates the denominator \f$ 1 - wb \f$.
+
+  \param x dsf variables
+  \param result Pointer to memory where to write the result to
+  */
 void geometric_series_denominator(dsf *x, complex_nr *result)
 {
     // calculating (1 - w * b)
@@ -445,6 +480,16 @@ void geometric_series_denominator(dsf *x, complex_nr *result)
 }
 
 
+/**
+  \brief calculate numerator of closed form of geometric series
+
+  Closed form of geometric series is 
+  \f$ a \cdot \frac{1 - (wb)^n}{1 - wb} \f$.
+  This function calculates the numerator \f$ 1 - (wb)^n \f$.
+
+  \param x dsf variables
+  \param result Pointer to memory where to write the result to
+  */
 void geometric_series_numerator(dsf *x, complex_nr *result)
 { 
     // calculating (1 - (w * b)^n) = (1 - (w^n * b^n))
@@ -464,6 +509,16 @@ void geometric_series_numerator(dsf *x, complex_nr *result)
 }
 
 
+/**
+  \brief calculate factor of closed form of geometric series
+
+  Closed form of geometric series is 
+  \f$ a \cdot \frac{1 - (wb)^n}{1 - wb} \f$.
+  This function calculates the factor \f$ \frac{1 - (wb)^n}{1 - wb} \f$.
+
+  \param x dsf variables
+  \param result Pointer to memory where to write the result to
+  */
 void geometric_series_factor(dsf *x, complex_nr *result)
 {
     // calculating (1 - (wb)^k) / (1 - wb)
@@ -476,7 +531,15 @@ void geometric_series_factor(dsf *x, complex_nr *result)
     divide_complex(&numerator, &denominator, result);
 }
 
+/**
+  \brief calculate closed form of geometric series
 
+  Closed form of geometric series is 
+  \f$ a \cdot \frac{1 - (wb)^n}{1 - wb} \f$.
+
+  \param x dsf variables
+  \param result Pointer to memory where to write the result to
+  */
 void geometric_series(dsf *x, complex_nr *result)
 {
     complex_nr factor;
