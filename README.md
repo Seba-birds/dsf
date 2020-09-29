@@ -122,6 +122,13 @@ The documentation is created in a new
 folder `./documentation/`.
 
 
+# Sources
+
+The following files where used and altered for this project:
+
+* Makefile: [https://github.com/pure-data/pd-lib-builder/](https://github.com/pure-data/pd-lib-builder/)
+* *_pd.c-files: [https://github.com/pure-data/externals-howto/blob/master/example4/pan%7E.c](https://github.com/pure-data/externals-howto/blob/master/example4/pan%7E.c)
+* m_pd.h: [https://github.com/pure-data/externals-howto#the-interface-to-pd](https://github.com/pure-data/externals-howto#the-interface-to-pd)
 
 
 

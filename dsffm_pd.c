@@ -1,13 +1,17 @@
-/*
- * HOWTO write an External for Pure data
- * (c) 2001-2006 IOhannes m zmölnig zmoelnig[AT]iem.at
- *
- * this is the source-code for the fourth example in the HOWTO
- * it creates a simple dsp-object:
- * 2 input signals are mixed into 1 output signal
- * the mixing-factor can be set via the 3rd inlet
- *
- * for legal issues please see the file LICENSE.txt
+/**
+  \file dsffm_pd.c
+  \author Johannes Zmoelnig, edited by Sebastian Zimmermann
+  \date 2001-2006, 2020
+  \brief This file creates the interface for the pure data dsffm object
+
+  Interface functionality is implemented in this
+  file, while actual logic is found in files
+  dsf.c, dsffm.c and dsflib.c.
+
+
+  \see https://github.com/pure-data/externals-howto/tree/master/example4
+
+
  */
 
 
