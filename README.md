@@ -1,5 +1,5 @@
 
-Discrete summation formula
+# Discrete summation formula
 
 When synthesizing sounds digitally,
 classic waveforms with rich spectra
@@ -30,8 +30,96 @@ in near-linear time, so that computational
 costs stay low.
 
 
+# Installation
 
 
+Clone this repository to your computer,
+open the directory and start the compilation
+with `make`:
+
+```
+# clone repository: 
+git clone https://github.com/Seba-birds/dsf.git
+# change to project root directory:
+cd dsf
+# compile sources:
+make
+# see results:
+ls
+```
+
+After compilation, you will find two new binary
+files whose name depends on your operating
+system. On MacOS those files are
+`dsf.pd_darwin` and `dsffm.pd_darwin`.
+
+Mind that those names are missing the tilde
+that is prescribed by puredata naming conventions.
+So we need to rename the binaries to meet the
+naming convention:
+
+```
+# replace file extension (".pd_darwin")
+# according to your OS
+mv dsf.pd_darwin dsf~.pd_darwin
+mv dsffm.pd_darwin dsffm~.pd_darwin
+```
+
+
+Now we need to copy the binaries and the help
+files to the correct folder on your system, so
+that they are available in puredata.
+Refer to [this site](https://puredata.info/docs/faq/how-do-i-install-externals-and-help-files/)
+for more detailed information. On a standard
+installation on MacOS, you can do:
+
+```
+for i in dsf~.pd_darwin dsffm~.pd_darwin dsf~-help.pd dsffm~-help.pd ; \
+do cp $i /Applications/Pd.app/Contents/Resources/extra/$i ; \
+done;
+```
+
+After restarting puredata, you should now be
+able to create the objects `dsf~` and `dsffm~`
+on the canvas and access the helper patches via
+the right-click menu.
+
+
+# Module overview
+
+## dsf~
+
+`dsf~` is a puredata implementation of the discrete summation formula.
+This module is controlled by messages and thus more transparent for
+user interaction, yet not convenient to use in a context where parameters
+are to be varied at signal speed. Refer to the `doxygen`-documentation
+for more detailed information about the implementation and to the
+`dsf~-help.pd`-file for more information about usage.
+
+## dsffm~
+
+`dsffm~` provides signal-rate inlets for fm-style modulation of several
+parameters of the DSF. The three inlets provide signal-rate control over
+pitch, overtone ratio and overtone weight. Opposed to the `dsf~`-module,
+pitch is controlled in MIDI-notes, not frequency, thus providing the same
+aural characteristics of a given modulation over the whole frequency
+spectrum. Refer to the `doxygen`-documentation
+for more detailed information about the implementation and to the
+`dsffm~-help.pd`-file for more information about usage.
+
+
+
+# Documentation
+
+For detailed description of the code, generate the
+documentation via `doxygen` like so:
+
+```
+doxygen Doxyfile
+```
+
+The documentation is created in a new 
+folder `./documentation/`.
 
 
 

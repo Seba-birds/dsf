@@ -32,6 +32,7 @@
   */ 
 void dsf_set_frequency(dsf *x, float frequency)
 {
+    frequency = fabs(frequency);
     if(frequency != 0.0)
     { 
         float ratio = frequency / x->frequency;
@@ -74,6 +75,7 @@ void dsf_set_ratio(dsf *x, float ratio)
   */
 void dsf_set_fundamental(dsf *x, float frequency)
 {
+    frequency = fabs(frequency);
     x->frequency = frequency; 
     // new frequency: adjust number of generated sines
     // to avoid aliasing by increased frequency
@@ -99,6 +101,7 @@ void dsf_set_fundamental(dsf *x, float frequency)
   */
 void dsf_set_distance(dsf *x, float distance)
 { 
+    distance = fabs(distance);
     x->distance = distance; 
     // new distance: adjust number of generated sines
     // to avoid aliasing by increased gaps between sines
@@ -123,6 +126,7 @@ void dsf_set_distance(dsf *x, float distance)
   */ 
 void dsf_set_weight(dsf *x, float weight)
 {
+    weight = clip(-0.5, 1.5, weight);
     x->weight = weight; 
 }
 
@@ -137,26 +141,20 @@ void dsf_set_weight(dsf *x, float weight)
 
   \param x dsf variables
   \param num_of_sines Number of partials to produce
-  */ 
+ */ 
 void dsf_set_num_of_sines(dsf *x, int num_of_sines)
 {
-    if(num_of_sines > 0)
+    num_of_sines = num_of_sines > 0 ? num_of_sines : 1;
+    x->usr_num_of_sines = num_of_sines;
+    if(x->distance)
     {
-        x->usr_num_of_sines = num_of_sines;
-        if(x->distance)
-        {
-            int max_num_of_sines = (int) (((x->sr / 2.0) - x->frequency) / x->distance) + 1;
-            x->num_of_sines = min(max_num_of_sines, num_of_sines);
-        }
-        else
-        {
-            // x->distance == 0: only one frequency
-            x->num_of_sines = 1; 
-        }
-
-        char msg[90];
-        sprintf(msg, "sr: %f, usr: %d, actual: %d\n", x->sr, x->usr_num_of_sines, x->num_of_sines);
-        //post(msg);
+        int max_num_of_sines = (int) (((x->sr / 2.0) - x->frequency) / x->distance) + 1;
+        x->num_of_sines = min(max_num_of_sines, num_of_sines);
+    }
+    else
+    {
+        // x->distance == 0: only one frequency
+        x->num_of_sines = 1; 
     } 
 } 
 
