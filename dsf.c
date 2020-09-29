@@ -195,8 +195,10 @@ void dsf_run(dsf *x, OUTPRECISION *out1, OUTPRECISION *out2, int vector_size)
         complex_nr result; 
         geometric_series(x, &result); 
 
-        out1[i] = result.re * norm_factor(x->weight, x->num_of_sines); 
-        out2[i] = result.im * norm_factor(x->weight, x->num_of_sines); 
+
+        INPRECISION norm = norm_factor(x->weight, x->num_of_sines); 
+        out1[i] = result.re * norm;
+        out2[i] = result.im * norm;
     } 
 }
 

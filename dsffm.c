@@ -47,7 +47,8 @@ void dsffm_run(dsf *x,
         complex_nr result; 
         geometric_series(x, &result); 
 
-        out1[i] = result.re * norm_factor(x->weight, x->num_of_sines); 
-        out2[i] = x->phasor_a->re;
+        INPRECISION norm = norm_factor(x->weight, x->num_of_sines); 
+        out1[i] = result.re * norm;
+        out2[i] = result.im * norm;
     } 
 }
