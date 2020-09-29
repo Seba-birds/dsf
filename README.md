@@ -130,5 +130,9 @@ The following files where used and altered for this project:
 * *_pd.c-files: [https://github.com/pure-data/externals-howto/blob/master/example4/pan%7E.c](https://github.com/pure-data/externals-howto/blob/master/example4/pan%7E.c)
 * m_pd.h: [https://github.com/pure-data/externals-howto#the-interface-to-pd](https://github.com/pure-data/externals-howto#the-interface-to-pd)
 
+The following sources where used to learn about DSF synthesis:
 
+* [James A. Moorer, "The Synthesis of Complex Audio Spectra by Means of Discrete Summation Formulas", 1976](https://ccrma.stanford.edu/files/papers/stanm5.pdf)
+* [Tim Stilson,  Julius Smith, "Alias-Free Digital Synthesis of Classic Analog Waveforms", 1996](https://ccrma.stanford.edu/~stilti/papers/blit.pdf)
+* [The Math behind DSF Synthesis](https://www.verklagekasper.de/synths/dsfsynthesis/dsfsynthesis.html)
 
